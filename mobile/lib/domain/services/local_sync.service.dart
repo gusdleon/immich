@@ -73,6 +73,12 @@ class LocalSyncService {
           }
           await updateAlbum(dbAlbum, album);
         }
+
+        final newAssetIds = delta.updates.map((e) => e.id).toList();
+        if (newAssetIds.isNotEmpty) {
+          final cloudMapping = await _nativeSyncApi.getCloudIdForAssetIds(newAssetIds);
+          await _localAlbumRepository.updateCloudMapping(cloudMapping);
+        }
       }
 
       await _nativeSyncApi.checkpointSync();
