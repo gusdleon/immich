@@ -1855,7 +1855,7 @@
     },
     "/assets/bulk-upload-check": {
       "post": {
-        "description": "Checks if assets exist by checksums. This endpoint requires the `asset.upload` permission.",
+        "description": "Checks if assets exist by checksums",
         "operationId": "checkBulkUpload",
         "parameters": [],
         "requestBody": {
@@ -1894,8 +1894,7 @@
         "summary": "checkBulkUpload",
         "tags": [
           "Assets"
-        ],
-        "x-immich-permission": "asset.upload"
+        ]
       }
     },
     "/assets/device/{deviceId}": {
@@ -14571,10 +14570,6 @@
           "query": {
             "type": "string"
           },
-          "queryAssetId": {
-            "format": "uuid",
-            "type": "string"
-          },
           "rating": {
             "maximum": 5,
             "minimum": -1,
@@ -14642,6 +14637,9 @@
             "type": "boolean"
           }
         },
+        "required": [
+          "query"
+        ],
         "type": "object"
       },
       "SourceType": {
@@ -15417,10 +15415,6 @@
         ],
         "type": "object"
       },
-      "SyncCompleteV1": {
-        "properties": {},
-        "type": "object"
-      },
       "SyncEntityType": {
         "enum": [
           "AuthUserV1",
@@ -15468,8 +15462,7 @@
           "UserMetadataV1",
           "UserMetadataDeleteV1",
           "SyncAckV1",
-          "SyncResetV1",
-          "SyncCompleteV1"
+          "SyncResetV1"
         ],
         "type": "string"
       },
