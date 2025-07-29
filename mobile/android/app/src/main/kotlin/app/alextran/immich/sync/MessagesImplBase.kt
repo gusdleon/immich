@@ -234,4 +234,8 @@ open class NativeSyncApiImplBase(context: Context) {
       }
     }
   }
+
+  fun getCloudIdForAssetIds(assetIds: List<String>): Map<String, String?> {
+    throw IllegalStateException("Method not supported on Android.")
+  }
 }
