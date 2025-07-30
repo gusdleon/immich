@@ -97,8 +97,6 @@ class Drift extends $Drift implements IDatabaseRepository {
             await m.create(v4.assetFaceEntity);
           },
           from4To5: (m, v5) async {
-            // Add cloudId column to local_asset_entity
-            await m.addColumn(v5.localAssetEntity, v5.localAssetEntity.cloudId);
             await m.alterTable(
               TableMigration(
                 v5.userEntity,
@@ -124,6 +122,8 @@ class Drift extends $Drift implements IDatabaseRepository {
           },
           from7To8: (m, v8) async {
             await m.create(v8.storeEntity);
+            // Add cloudId column to local_asset_entity
+            await m.addColumn(v6.localAssetEntity, v6.localAssetEntity.cloudId);
           },
           from8To9: (m, v9) async {
             await m.addColumn(v9.localAlbumEntity, v9.localAlbumEntity.linkedRemoteAlbumId);
