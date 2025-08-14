@@ -13,6 +13,7 @@
   import { fly, scale } from 'svelte/transition';
 
   import { DayGroup } from '$lib/managers/timeline-manager/day-group.svelte';
+  import { fromTimelinePlainDate, getDateLocaleString } from '$lib/utils/timeline-util';
 
   let { isUploading } = uploadAssetsStore;
 
@@ -59,6 +60,16 @@
 
   let isMouseOverGroup = $state(false);
   let hoveredDayGroup = $state();
+
+  const getDayGroupFullDate = (dayGroup: DayGroup): string => {
+    const { month, year } = dayGroup.monthGroup.yearMonth;
+    const date = fromTimelinePlainDate({
+      year,
+      month,
+      day: dayGroup.day,
+    });
+    return getDateLocaleString(date);
+  };
 
   const transitionDuration = $derived.by(() =>
     monthGroup.timelineManager.suspendTransitions && !$isUploading ? 0 : 150,
@@ -118,7 +129,7 @@
         </div>
       {/if}
 
-      <span class="w-full truncate first-letter:capitalize" title={dayGroup.groupTitle}>
+      <span class="w-full truncate first-letter:capitalize" title={getDayGroupFullDate(dayGroup)}>
         {dayGroup.groupTitle}
       </span>
     </div>
