@@ -4797,9 +4797,6 @@ export enum Permission {
 export enum AssetMetadataKey {
     MobileApp = "mobile-app"
 }
-export enum AssetMetadataKey {
-    MobileApp = "mobile-app"
-}
 export enum AssetMediaStatus {
     Created = "created",
     Replaced = "replaced",

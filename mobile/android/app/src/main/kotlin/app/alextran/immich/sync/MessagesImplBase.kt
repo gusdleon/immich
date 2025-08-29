@@ -235,7 +235,9 @@ open class NativeSyncApiImplBase(context: Context) {
     }
   }
 
+  // This method is only implemented on iOS; on Android, we do not have a concept of cloud IDs
+  @Suppress("unused", "UNUSED_PARAMETER")
   fun getCloudIdForAssetIds(assetIds: List<String>): Map<String, String?> {
-    throw IllegalStateException("Method not supported on Android.")
+    return emptyMap()
   }
 }
