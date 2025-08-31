@@ -71,7 +71,13 @@ Future<void> migrateDatabaseIfNeeded(Isar db, Drift drift) async {
   }
 
   if (version < 15) {
-    await _updateCloudId(drift);
+    try {
+      await _updateCloudId(drift);
+    } catch (error) {
+      Logger("Migration").warning("Error occurred while updating cloud ID: $error");
+      // do not update version when error occurs so this is retried the next time
+      return;
+    }
   }
 
   if (targetVersion >= 12) {
