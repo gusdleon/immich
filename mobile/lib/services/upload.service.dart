@@ -365,7 +365,12 @@ class UploadService {
       'fileModifiedAt': modifiedAt.toUtc().toIso8601String(),
       'isFavorite': isFavorite?.toString() ?? 'false',
       'duration': '0',
-      'metadata': RemoteAssetMetadata(cloudId: cloudId).toJson(),
+      'metadata': jsonEncode([
+        RemoteAssetMetadataItem(
+          key: RemoteAssetMetadataKey.mobileApp,
+          value: RemoteAssetMobileAppMetadata(cloudId: cloudId).toMap(),
+        ),
+      ]),
       if (fields != null) ...fields,
     };
 

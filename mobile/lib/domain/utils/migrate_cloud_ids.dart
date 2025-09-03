@@ -24,7 +24,7 @@ Future<void> migrateCloudIds(ProviderContainer ref) async {
   for (final mapping in mappingsToUpdate) {
     final mobileMeta = AssetMetadataUpsertItemDto(
       key: AssetMetadataKey.mobileApp,
-      value: {"iCloudId": mapping.cloudId},
+      value: RemoteAssetMobileAppMetadata(cloudId: mapping.cloudId).toMap(),
     );
     await assetApi.updateAssetMetadata(mapping.assetId, AssetMetadataUpsertDto(items: [mobileMeta]));
   }
@@ -52,7 +52,7 @@ Future<List<_CloudIdMapping>> _fetchCloudIdMappings(Drift drift) async {
           leftOuterJoin(
             drift.remoteAssetMetadataEntity,
             drift.remoteAssetMetadataEntity.assetId.equalsExp(drift.remoteAssetEntity.id) &
-                drift.remoteAssetMetadataEntity.key.equalsValue(RemoteAssetMetadataKey.mobileApp),
+                drift.remoteAssetMetadataEntity.key.equals(RemoteAssetMetadataKey.mobileApp.key),
             useColumns: false,
           ),
         ])

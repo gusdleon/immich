@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:immich_mobile/domain/models/album/album.model.dart';
-import 'package:immich_mobile/domain/models/asset/asset_metadata.model.dart';
 import 'package:immich_mobile/domain/models/asset/base_asset.model.dart';
 import 'package:immich_mobile/domain/models/memory.model.dart';
 import 'package:immich_mobile/domain/models/user_metadata.model.dart';
@@ -22,7 +21,7 @@ import 'package:immich_mobile/infrastructure/entities/user.entity.drift.dart';
 import 'package:immich_mobile/infrastructure/entities/user_metadata.entity.drift.dart';
 import 'package:immich_mobile/infrastructure/repositories/db.repository.dart';
 import 'package:logging/logging.dart';
-import 'package:openapi/api.dart' as api show AssetVisibility, AlbumUserRole, UserMetadataKey, AssetMetadataKey;
+import 'package:openapi/api.dart' as api show AssetVisibility, AlbumUserRole, UserMetadataKey;
 import 'package:openapi/api.dart' hide AssetVisibility, AlbumUserRole, UserMetadataKey, AssetMetadataKey;
 
 class SyncStreamRepository extends DriftDatabaseRepository {
@@ -201,8 +200,8 @@ class SyncStreamRepository extends DriftDatabaseRepository {
       await _db.batch((batch) {
         for (final metadata in data) {
           final companion = RemoteAssetMetadataEntityCompanion(
-            key: Value(metadata.key.toRemoteAssetMetadataKey()),
-            value: Value(jsonDecode(metadata.value as String)),
+            key: Value(metadata.key.value),
+            value: Value(metadata.value as Map<String, Object?>),
           );
 
           batch.insert(
@@ -612,11 +611,4 @@ extension on String {
       return null;
     }
   }
-}
-
-extension on api.AssetMetadataKey {
-  RemoteAssetMetadataKey toRemoteAssetMetadataKey() => switch (this) {
-    api.AssetMetadataKey.mobileApp => RemoteAssetMetadataKey.mobileApp,
-    _ => throw Exception('Unknown AssetMetadataKey value: $this'),
-  };
 }

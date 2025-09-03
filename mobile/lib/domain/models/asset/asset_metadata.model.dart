@@ -6,33 +6,33 @@ enum RemoteAssetMetadataKey {
   final String key;
 
   const RemoteAssetMetadataKey(this.key);
-
-  factory RemoteAssetMetadataKey.fromKey(String key) {
-    switch (key) {
-      case "mobile-app":
-        return RemoteAssetMetadataKey.mobileApp;
-      default:
-        throw ArgumentError("Unknown AssetMetadataKey key: $key");
-    }
-  }
 }
 
-class RemoteAssetMetadata {
+class RemoteAssetMetadataItem {
+  final RemoteAssetMetadataKey key;
+  final Object value;
+
+  const RemoteAssetMetadataItem({required this.key, required this.value});
+
+  Map<String, Object?> toMap() {
+    return {'key': key.key, 'value': value};
+  }
+
+  String toJson() => json.encode(toMap());
+}
+
+class RemoteAssetMobileAppMetadata {
   final String? cloudId;
 
-  const RemoteAssetMetadata({this.cloudId});
+  const RemoteAssetMobileAppMetadata({this.cloudId});
 
-  Map<String, dynamic> toMap() {
-    final mobileAppValue = {};
+  Map<String, Object?> toMap() {
+    final map = <String, Object?>{};
     if (cloudId != null) {
-      mobileAppValue["iCloudId"] = cloudId;
+      map["iCloudId"] = cloudId;
     }
 
-    return {
-      "metadata": [
-        {"key": RemoteAssetMetadataKey.mobileApp.key, "value": mobileAppValue},
-      ],
-    };
+    return map;
   }
 
   String toJson() => json.encode(toMap());
