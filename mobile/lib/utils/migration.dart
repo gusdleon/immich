@@ -35,7 +35,7 @@ import 'package:logging/logging.dart';
 // ignore: import_rule_photo_manager
 import 'package:photo_manager/photo_manager.dart';
 
-const int targetVersion = 15;
+const int targetVersion = 14;
 
 Future<void> migrateDatabaseIfNeeded(Isar db, Drift drift) async {
   final hasVersion = Store.tryGet(StoreKey.version) != null;
@@ -68,16 +68,6 @@ Future<void> migrateDatabaseIfNeeded(Isar db, Drift drift) async {
   if (version < 14 || !hasVersion) {
     await migrateStoreToSqlite(db, drift);
     await Store.populateCache();
-  }
-
-  if (version < 15) {
-    try {
-      await updateCloudId(drift);
-    } catch (error) {
-      Logger("Migration").warning("Error occurred while updating cloud ID: $error");
-      // do not update version when error occurs so this is retried the next time
-      return;
-    }
   }
 
   if (targetVersion >= 12) {
@@ -187,20 +177,6 @@ Future<void> migrateDeviceAssetToSqlite(Isar db, Drift drift) async {
   } catch (error) {
     debugPrint("[MIGRATION] Error while migrating device assets to SQLite: $error");
   }
-}
-
-Future<void> updateCloudId(Drift drift) async {
-  // Android do not have a concept of cloud IDs
-  if (Platform.isAndroid) {
-    return;
-  }
-
-  final query = drift.localAssetEntity.selectOnly()
-    ..addColumns([drift.localAssetEntity.id])
-    ..where(drift.localAssetEntity.cloudId.isNull());
-  final ids = await query.map((row) => row.read(drift.localAssetEntity.id)!).get();
-  final cloudMapping = await NativeSyncApi().getCloudIdForAssetIds(ids);
-  await DriftLocalAlbumRepository(drift).updateCloudMapping(cloudMapping);
 }
 
 Future<void> migrateBackupAlbumsToSqlite(Isar db, Drift drift) async {
