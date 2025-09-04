@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 enum RemoteAssetMetadataKey {
   mobileApp("mobile-app");
 
@@ -8,25 +6,30 @@ enum RemoteAssetMetadataKey {
   const RemoteAssetMetadataKey(this.key);
 }
 
+abstract class RemoteAssetMetadataValue {
+  const RemoteAssetMetadataValue();
+
+  Map<String, dynamic> toJson();
+}
+
 class RemoteAssetMetadataItem {
   final RemoteAssetMetadataKey key;
-  final Object value;
+  final RemoteAssetMetadataValue value;
 
   const RemoteAssetMetadataItem({required this.key, required this.value});
 
-  Map<String, Object?> toMap() {
+  Map<String, Object?> toJson() {
     return {'key': key.key, 'value': value};
   }
-
-  String toJson() => json.encode(toMap());
 }
 
-class RemoteAssetMobileAppMetadata {
+class RemoteAssetMobileAppMetadata extends RemoteAssetMetadataValue {
   final String? cloudId;
 
   const RemoteAssetMobileAppMetadata({this.cloudId});
 
-  Map<String, Object?> toMap() {
+  @override
+  Map<String, dynamic> toJson() {
     final map = <String, Object?>{};
     if (cloudId != null) {
       map["iCloudId"] = cloudId;
@@ -34,6 +37,4 @@ class RemoteAssetMobileAppMetadata {
 
     return map;
   }
-
-  String toJson() => json.encode(toMap());
 }

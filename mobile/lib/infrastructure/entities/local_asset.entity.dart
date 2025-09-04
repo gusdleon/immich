@@ -37,5 +37,6 @@ extension LocalAssetEntityDataDomainExtension on LocalAssetEntityData {
     width: width,
     remoteId: null,
     orientation: orientation,
+    cloudId: cloudId,
   );
 }

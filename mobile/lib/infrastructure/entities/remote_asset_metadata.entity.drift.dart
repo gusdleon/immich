@@ -425,9 +425,9 @@ class $RemoteAssetMetadataEntityTable extends i3.RemoteAssetMetadataEntity
   late final i0.GeneratedColumn<String> cloudId = i0.GeneratedColumn<String>(
     'cloud_id',
     aliasedName,
-    false,
+    true,
     generatedAs: i0.GeneratedAs(
-      i4.JsonExtensions(key).jsonExtract(r'$.iCloudId'),
+      i4.JsonbExtensions(value).jsonExtract(r'$.iCloudId'),
       true,
     ),
     type: i0.DriftSqlType.string,
@@ -498,7 +498,7 @@ class $RemoteAssetMetadataEntityTable extends i3.RemoteAssetMetadataEntity
       cloudId: attachedDatabase.typeMapping.read(
         i0.DriftSqlType.string,
         data['${effectivePrefix}cloud_id'],
-      )!,
+      ),
     );
   }
 
@@ -520,12 +520,12 @@ class RemoteAssetMetadataEntityData extends i0.DataClass
   final String assetId;
   final String key;
   final Map<String, Object?> value;
-  final String cloudId;
+  final String? cloudId;
   const RemoteAssetMetadataEntityData({
     required this.assetId,
     required this.key,
     required this.value,
-    required this.cloudId,
+    this.cloudId,
   });
   @override
   Map<String, i0.Expression> toColumns(bool nullToAbsent) {
@@ -551,7 +551,7 @@ class RemoteAssetMetadataEntityData extends i0.DataClass
       value: i1.$RemoteAssetMetadataEntityTable.$convertervalue.fromJson(
         serializer.fromJson<Object?>(json['value']),
       ),
-      cloudId: serializer.fromJson<String>(json['cloudId']),
+      cloudId: serializer.fromJson<String?>(json['cloudId']),
     );
   }
   @override
@@ -563,7 +563,7 @@ class RemoteAssetMetadataEntityData extends i0.DataClass
       'value': serializer.toJson<Object?>(
         i1.$RemoteAssetMetadataEntityTable.$convertervalue.toJson(value),
       ),
-      'cloudId': serializer.toJson<String>(cloudId),
+      'cloudId': serializer.toJson<String?>(cloudId),
     };
   }
 
@@ -571,12 +571,12 @@ class RemoteAssetMetadataEntityData extends i0.DataClass
     String? assetId,
     String? key,
     Map<String, Object?>? value,
-    String? cloudId,
+    i0.Value<String?> cloudId = const i0.Value.absent(),
   }) => i1.RemoteAssetMetadataEntityData(
     assetId: assetId ?? this.assetId,
     key: key ?? this.key,
     value: value ?? this.value,
-    cloudId: cloudId ?? this.cloudId,
+    cloudId: cloudId.present ? cloudId.value : this.cloudId,
   );
   @override
   String toString() {

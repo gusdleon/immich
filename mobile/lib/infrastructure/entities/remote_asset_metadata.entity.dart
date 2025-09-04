@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:drift/drift.dart';
 import 'package:drift/extensions/json1.dart';
 import 'package:immich_mobile/infrastructure/entities/remote_asset.entity.dart';
@@ -17,7 +15,7 @@ class RemoteAssetMetadataEntity extends Table with DriftDefaultsMixin {
 
   BlobColumn get value => blob().map(assetMetadataConverter)();
 
-  TextColumn get cloudId => text().generatedAs(key.jsonExtract(r'$.iCloudId'), stored: true)();
+  TextColumn get cloudId => text().generatedAs(value.jsonExtract(r'$.iCloudId'), stored: true).nullable()();
 
   @override
   Set<Column> get primaryKey => {assetId, key};
@@ -25,5 +23,4 @@ class RemoteAssetMetadataEntity extends Table with DriftDefaultsMixin {
 
 final JsonTypeConverter2<Map<String, Object?>, Uint8List, Object?> assetMetadataConverter = TypeConverter.jsonb(
   fromJson: (json) => json as Map<String, Object?>,
-  toJson: (value) => jsonEncode(value),
 );

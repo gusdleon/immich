@@ -368,7 +368,7 @@ class UploadService {
       'metadata': jsonEncode([
         RemoteAssetMetadataItem(
           key: RemoteAssetMetadataKey.mobileApp,
-          value: RemoteAssetMobileAppMetadata(cloudId: cloudId).toMap(),
+          value: RemoteAssetMobileAppMetadata(cloudId: cloudId),
         ),
       ]),
       if (fields != null) ...fields,
