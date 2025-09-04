@@ -12,7 +12,7 @@ import 'package:logging/logging.dart';
 // ignore: import_rule_openapi
 import 'package:openapi/api.dart';
 
-Future<void> migrateCloudIds(ProviderContainer ref) async {
+Future<void> syncCloudIds(ProviderContainer ref) async {
   final db = ref.read(driftProvider);
   // Populate cloud IDs for local assets that don't have one yet
   await _populateCloudIds(db);

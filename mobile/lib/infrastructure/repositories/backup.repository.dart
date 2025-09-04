@@ -64,8 +64,7 @@ class DriftBackupRepository extends DriftDatabaseRepository {
         ),
         leftOuterJoin(
           _db.remoteAssetEntity,
-          (_db.localAssetEntity.checksum.equalsExp(_db.remoteAssetEntity.checksum) |
-                  _db.localAssetEntity.cloudId.equalsExp(_db.remoteAssetEntity.cloudId)) &
+          _db.localAssetEntity.checksum.equalsExp(_db.remoteAssetEntity.checksum) &
               _db.remoteAssetEntity.ownerId.equals(userId),
           useColumns: false,
         ),
@@ -95,8 +94,7 @@ class DriftBackupRepository extends DriftDatabaseRepository {
         ),
         innerJoin(
           _db.remoteAssetEntity,
-          _db.localAssetEntity.checksum.equalsExp(_db.remoteAssetEntity.checksum) |
-              _db.localAssetEntity.cloudId.equalsExp(_db.remoteAssetEntity.cloudId),
+          _db.localAssetEntity.checksum.equalsExp(_db.remoteAssetEntity.checksum),
           useColumns: false,
         ),
       ])
@@ -118,7 +116,7 @@ class DriftBackupRepository extends DriftDatabaseRepository {
     final query = _db.localAssetEntity.select()
       ..where(
         (lae) =>
-            (lae.checksum.isNotNull() | lae.cloudId.isNotNull()) &
+            lae.checksum.isNotNull() &
             existsQuery(
               _db.localAlbumAssetEntity.selectOnly()
                 ..addColumns([_db.localAlbumAssetEntity.assetId])
@@ -131,9 +129,7 @@ class DriftBackupRepository extends DriftDatabaseRepository {
               _db.remoteAssetEntity.selectOnly()
                 ..addColumns([_db.remoteAssetEntity.checksum])
                 ..where(
-                  (_db.localAssetEntity.checksum.equalsExp(_db.remoteAssetEntity.checksum) |
-                          _db.localAssetEntity.cloudId.equalsExp(_db.remoteAssetEntity.cloudId)) &
-                      _db.remoteAssetEntity.ownerId.equals(userId),
+                  _db.remoteAssetEntity.checksum.equalsExp(lae.checksum) & _db.remoteAssetEntity.ownerId.equals(userId),
                 ),
             ) &
             lae.id.isNotInQuery(_getExcludedSubquery()),

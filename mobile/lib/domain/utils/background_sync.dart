@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:immich_mobile/domain/utils/migrate_cloud_ids.dart';
+import 'package:immich_mobile/domain/utils/migrate_cloud_ids.dart' as m;
 import 'package:immich_mobile/domain/utils/sync_linked_album.dart';
 import 'package:immich_mobile/providers/infrastructure/sync.provider.dart';
 import 'package:immich_mobile/utils/isolate.dart';
@@ -195,7 +195,7 @@ class BackgroundSyncManager {
 
     onCloudIdSyncStart?.call();
 
-    _cloudIdSyncTask = runInIsolateGentle(computation: migrateCloudIds);
+    _cloudIdSyncTask = runInIsolateGentle(computation: m.syncCloudIds);
     return _cloudIdSyncTask!
         .whenComplete(() {
           onCloudIdSyncComplete?.call();
