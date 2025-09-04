@@ -68,7 +68,7 @@ class Drift extends $Drift implements IDatabaseRepository {
     : super(executor ?? driftDatabase(name: 'immich', native: const DriftNativeOptions(shareAcrossIsolates: true)));
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -133,6 +133,13 @@ class Drift extends $Drift implements IDatabaseRepository {
           },
           from8To9: (m, v9) async {
             await m.addColumn(v9.localAlbumEntity, v9.localAlbumEntity.linkedRemoteAlbumId);
+          },
+          from9To10: (m, v10) async {
+            // Add cloud_id to local and remote asset tables
+            await m.addColumn(v10.localAssetEntity, v10.localAssetEntity.cloudId);
+            await m.createIndex(v10.idxLocalAssetCloudId);
+            await m.addColumn(v10.remoteAssetEntity, v10.remoteAssetEntity.cloudId);
+            await m.createIndex(v10.idxRemoteAssetCloudId);
           },
         ),
       );
