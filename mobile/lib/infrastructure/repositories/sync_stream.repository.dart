@@ -15,14 +15,13 @@ import 'package:immich_mobile/infrastructure/entities/remote_album.entity.drift.
 import 'package:immich_mobile/infrastructure/entities/remote_album_asset.entity.drift.dart';
 import 'package:immich_mobile/infrastructure/entities/remote_album_user.entity.drift.dart';
 import 'package:immich_mobile/infrastructure/entities/remote_asset.entity.drift.dart';
-import 'package:immich_mobile/infrastructure/entities/remote_asset_metadata.entity.drift.dart';
 import 'package:immich_mobile/infrastructure/entities/stack.entity.drift.dart';
 import 'package:immich_mobile/infrastructure/entities/user.entity.drift.dart';
 import 'package:immich_mobile/infrastructure/entities/user_metadata.entity.drift.dart';
 import 'package:immich_mobile/infrastructure/repositories/db.repository.dart';
 import 'package:logging/logging.dart';
 import 'package:openapi/api.dart' as api show AssetVisibility, AlbumUserRole, UserMetadataKey;
-import 'package:openapi/api.dart' hide AssetVisibility, AlbumUserRole, UserMetadataKey, AssetMetadataKey;
+import 'package:openapi/api.dart' hide AssetVisibility, AlbumUserRole, UserMetadataKey;
 
 class SyncStreamRepository extends DriftDatabaseRepository {
   final Logger _logger = Logger('DriftSyncStreamRepository');
@@ -183,10 +182,13 @@ class SyncStreamRepository extends DriftDatabaseRepository {
     try {
       await _db.batch((batch) {
         for (final metadata in data) {
-          batch.deleteWhere(
-            _db.remoteAssetMetadataEntity,
-            (row) => row.assetId.equals(metadata.assetId) & row.key.equals(metadata.key.value),
-          );
+          if (metadata.key == AssetMetadataKey.mobileApp) {
+            batch.update(
+              _db.remoteAssetEntity,
+              const RemoteAssetEntityCompanion(cloudId: Value(null)),
+              where: (row) => row.id.equals(metadata.assetId),
+            );
+          }
         }
       });
     } catch (error, stack) {
@@ -199,16 +201,14 @@ class SyncStreamRepository extends DriftDatabaseRepository {
     try {
       await _db.batch((batch) {
         for (final metadata in data) {
-          final companion = RemoteAssetMetadataEntityCompanion(
-            key: Value(metadata.key.value),
-            value: Value(metadata.value as Map<String, Object?>),
-          );
-
-          batch.insert(
-            _db.remoteAssetMetadataEntity,
-            companion.copyWith(assetId: Value(metadata.assetId)),
-            onConflict: DoUpdate((_) => companion),
-          );
+          if (metadata.key == AssetMetadataKey.mobileApp) {
+            final map = metadata.value as Map<String, Object?>;
+            batch.update(
+              _db.remoteAssetEntity,
+              RemoteAssetEntityCompanion(cloudId: Value(map['iCloudId']?.toString())),
+              where: (row) => row.id.equals(metadata.assetId),
+            );
+          }
         }
       });
     } catch (error, stack) {

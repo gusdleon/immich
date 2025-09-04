@@ -19,6 +19,7 @@ ON remote_asset_entity (owner_id, library_id, checksum)
 WHERE (library_id IS NOT NULL);
 ''')
 @TableIndex.sql('CREATE INDEX IF NOT EXISTS idx_remote_asset_checksum ON remote_asset_entity (checksum)')
+@TableIndex.sql('CREATE INDEX IF NOT EXISTS idx_remote_asset_cloud_id ON remote_asset_entity (cloud_id);')
 class RemoteAssetEntity extends Table with DriftDefaultsMixin, AssetEntityMixin {
   const RemoteAssetEntity();
 
@@ -43,6 +44,8 @@ class RemoteAssetEntity extends Table with DriftDefaultsMixin, AssetEntityMixin 
   TextColumn get stackId => text().nullable()();
 
   TextColumn get libraryId => text().nullable()();
+
+  TextColumn get cloudId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

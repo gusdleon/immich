@@ -34,7 +34,8 @@ class RemoteAssetRepository extends DriftDatabaseRepository {
         _db.remoteAssetEntity.select().addColumns([_db.localAssetEntity.id]).join([
             leftOuterJoin(
               _db.localAssetEntity,
-              _db.remoteAssetEntity.checksum.equalsExp(_db.localAssetEntity.checksum),
+              _db.localAssetEntity.checksum.equalsExp(_db.remoteAssetEntity.checksum) |
+                  _db.localAssetEntity.cloudId.equalsExp(_db.remoteAssetEntity.cloudId),
               useColumns: false,
             ),
           ])
