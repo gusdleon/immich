@@ -3838,12 +3838,12 @@ final class Schema10 extends i0.VersionedSchema {
     uQRemoteAssetsOwnerChecksum,
     uQRemoteAssetsOwnerLibraryChecksum,
     idxRemoteAssetChecksum,
-    idxRemoteAssetCloudId,
     userMetadataEntity,
     partnerEntity,
     remoteExifEntity,
     remoteAlbumAssetEntity,
     remoteAlbumUserEntity,
+    remoteAssetCloudIdEntity,
     memoryEntity,
     memoryAssetEntity,
     personEntity,
@@ -3870,7 +3870,7 @@ final class Schema10 extends i0.VersionedSchema {
     ),
     alias: null,
   );
-  late final Shape20 remoteAssetEntity = Shape20(
+  late final Shape17 remoteAssetEntity = Shape17(
     source: i0.VersionedTable(
       entityName: 'remote_asset_entity',
       withoutRowId: true,
@@ -3895,7 +3895,6 @@ final class Schema10 extends i0.VersionedSchema {
         _column_20,
         _column_21,
         _column_86,
-        _column_91,
       ],
       attachedDatabase: database,
     ),
@@ -3912,7 +3911,7 @@ final class Schema10 extends i0.VersionedSchema {
     ),
     alias: null,
   );
-  late final Shape21 localAssetEntity = Shape21(
+  late final Shape20 localAssetEntity = Shape20(
     source: i0.VersionedTable(
       entityName: 'local_asset_entity',
       withoutRowId: true,
@@ -4011,10 +4010,6 @@ final class Schema10 extends i0.VersionedSchema {
     'idx_remote_asset_checksum',
     'CREATE INDEX IF NOT EXISTS idx_remote_asset_checksum ON remote_asset_entity (checksum)',
   );
-  final i1.Index idxRemoteAssetCloudId = i1.Index(
-    'idx_remote_asset_cloud_id',
-    'CREATE INDEX IF NOT EXISTS idx_remote_asset_cloud_id ON remote_asset_entity (cloud_id)',
-  );
   late final Shape4 userMetadataEntity = Shape4(
     source: i0.VersionedTable(
       entityName: 'user_metadata_entity',
@@ -4089,6 +4084,17 @@ final class Schema10 extends i0.VersionedSchema {
       isStrict: true,
       tableConstraints: ['PRIMARY KEY(album_id, user_id)'],
       columns: [_column_60, _column_25, _column_61],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 remoteAssetCloudIdEntity = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'remote_asset_cloud_id_entity',
+      withoutRowId: true,
+      isStrict: true,
+      tableConstraints: ['PRIMARY KEY(asset_id)'],
+      columns: [_column_36, _column_92],
       attachedDatabase: database,
     ),
     alias: null,
@@ -4211,22 +4217,8 @@ class Shape20 extends i0.VersionedTable {
       columnsByName['checksum']! as i1.GeneratedColumn<String>;
   i1.GeneratedColumn<bool> get isFavorite =>
       columnsByName['is_favorite']! as i1.GeneratedColumn<bool>;
-  i1.GeneratedColumn<String> get ownerId =>
-      columnsByName['owner_id']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<DateTime> get localDateTime =>
-      columnsByName['local_date_time']! as i1.GeneratedColumn<DateTime>;
-  i1.GeneratedColumn<String> get thumbHash =>
-      columnsByName['thumb_hash']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<DateTime> get deletedAt =>
-      columnsByName['deleted_at']! as i1.GeneratedColumn<DateTime>;
-  i1.GeneratedColumn<String> get livePhotoVideoId =>
-      columnsByName['live_photo_video_id']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<int> get visibility =>
-      columnsByName['visibility']! as i1.GeneratedColumn<int>;
-  i1.GeneratedColumn<String> get stackId =>
-      columnsByName['stack_id']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<String> get libraryId =>
-      columnsByName['library_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get orientation =>
+      columnsByName['orientation']! as i1.GeneratedColumn<int>;
   i1.GeneratedColumn<String> get cloudId =>
       columnsByName['cloud_id']! as i1.GeneratedColumn<String>;
 }
@@ -4241,32 +4233,20 @@ i1.GeneratedColumn<String> _column_91(String aliasedName) =>
 
 class Shape21 extends i0.VersionedTable {
   Shape21({required super.source, required super.alias}) : super.aliased();
-  i1.GeneratedColumn<String> get name =>
-      columnsByName['name']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<int> get type =>
-      columnsByName['type']! as i1.GeneratedColumn<int>;
-  i1.GeneratedColumn<DateTime> get createdAt =>
-      columnsByName['created_at']! as i1.GeneratedColumn<DateTime>;
-  i1.GeneratedColumn<DateTime> get updatedAt =>
-      columnsByName['updated_at']! as i1.GeneratedColumn<DateTime>;
-  i1.GeneratedColumn<int> get width =>
-      columnsByName['width']! as i1.GeneratedColumn<int>;
-  i1.GeneratedColumn<int> get height =>
-      columnsByName['height']! as i1.GeneratedColumn<int>;
-  i1.GeneratedColumn<int> get durationInSeconds =>
-      columnsByName['duration_in_seconds']! as i1.GeneratedColumn<int>;
-  i1.GeneratedColumn<String> get id =>
-      columnsByName['id']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<String> get checksum =>
-      columnsByName['checksum']! as i1.GeneratedColumn<String>;
-  i1.GeneratedColumn<bool> get isFavorite =>
-      columnsByName['is_favorite']! as i1.GeneratedColumn<bool>;
-  i1.GeneratedColumn<int> get orientation =>
-      columnsByName['orientation']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get assetId =>
+      columnsByName['asset_id']! as i1.GeneratedColumn<String>;
   i1.GeneratedColumn<String> get cloudId =>
       columnsByName['cloud_id']! as i1.GeneratedColumn<String>;
 }
 
+i1.GeneratedColumn<String> _column_92(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'cloud_id',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      defaultConstraints: i1.GeneratedColumn.constraintIsAlways('UNIQUE'),
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,

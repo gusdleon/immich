@@ -31,7 +31,6 @@ typedef $$RemoteAssetEntityTableCreateCompanionBuilder =
       required i2.AssetVisibility visibility,
       i0.Value<String?> stackId,
       i0.Value<String?> libraryId,
-      i0.Value<String?> cloudId,
     });
 typedef $$RemoteAssetEntityTableUpdateCompanionBuilder =
     i1.RemoteAssetEntityCompanion Function({
@@ -53,7 +52,6 @@ typedef $$RemoteAssetEntityTableUpdateCompanionBuilder =
       i0.Value<i2.AssetVisibility> visibility,
       i0.Value<String?> stackId,
       i0.Value<String?> libraryId,
-      i0.Value<String?> cloudId,
     });
 
 final class $$RemoteAssetEntityTableReferences
@@ -198,11 +196,6 @@ class $$RemoteAssetEntityTableFilterComposer
     builder: (column) => i0.ColumnFilters(column),
   );
 
-  i0.ColumnFilters<String> get cloudId => $composableBuilder(
-    column: $table.cloudId,
-    builder: (column) => i0.ColumnFilters(column),
-  );
-
   i5.$$UserEntityTableFilterComposer get ownerId {
     final i5.$$UserEntityTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -325,11 +318,6 @@ class $$RemoteAssetEntityTableOrderingComposer
     builder: (column) => i0.ColumnOrderings(column),
   );
 
-  i0.ColumnOrderings<String> get cloudId => $composableBuilder(
-    column: $table.cloudId,
-    builder: (column) => i0.ColumnOrderings(column),
-  );
-
   i5.$$UserEntityTableOrderingComposer get ownerId {
     final i5.$$UserEntityTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -429,9 +417,6 @@ class $$RemoteAssetEntityTableAnnotationComposer
   i0.GeneratedColumn<String> get libraryId =>
       $composableBuilder(column: $table.libraryId, builder: (column) => column);
 
-  i0.GeneratedColumn<String> get cloudId =>
-      $composableBuilder(column: $table.cloudId, builder: (column) => column);
-
   i5.$$UserEntityTableAnnotationComposer get ownerId {
     final i5.$$UserEntityTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -512,7 +497,6 @@ class $$RemoteAssetEntityTableTableManager
                     const i0.Value.absent(),
                 i0.Value<String?> stackId = const i0.Value.absent(),
                 i0.Value<String?> libraryId = const i0.Value.absent(),
-                i0.Value<String?> cloudId = const i0.Value.absent(),
               }) => i1.RemoteAssetEntityCompanion(
                 name: name,
                 type: type,
@@ -532,7 +516,6 @@ class $$RemoteAssetEntityTableTableManager
                 visibility: visibility,
                 stackId: stackId,
                 libraryId: libraryId,
-                cloudId: cloudId,
               ),
           createCompanionCallback:
               ({
@@ -554,7 +537,6 @@ class $$RemoteAssetEntityTableTableManager
                 required i2.AssetVisibility visibility,
                 i0.Value<String?> stackId = const i0.Value.absent(),
                 i0.Value<String?> libraryId = const i0.Value.absent(),
-                i0.Value<String?> cloudId = const i0.Value.absent(),
               }) => i1.RemoteAssetEntityCompanion.insert(
                 name: name,
                 type: type,
@@ -574,7 +556,6 @@ class $$RemoteAssetEntityTableTableManager
                 visibility: visibility,
                 stackId: stackId,
                 libraryId: libraryId,
-                cloudId: cloudId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -863,17 +844,6 @@ class $RemoteAssetEntityTable extends i3.RemoteAssetEntity
     type: i0.DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const i0.VerificationMeta _cloudIdMeta = const i0.VerificationMeta(
-    'cloudId',
-  );
-  @override
-  late final i0.GeneratedColumn<String> cloudId = i0.GeneratedColumn<String>(
-    'cloud_id',
-    aliasedName,
-    true,
-    type: i0.DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   @override
   List<i0.GeneratedColumn> get $columns => [
     name,
@@ -894,7 +864,6 @@ class $RemoteAssetEntityTable extends i3.RemoteAssetEntity
     visibility,
     stackId,
     libraryId,
-    cloudId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1018,12 +987,6 @@ class $RemoteAssetEntityTable extends i3.RemoteAssetEntity
         libraryId.isAcceptableOrUnknown(data['library_id']!, _libraryIdMeta),
       );
     }
-    if (data.containsKey('cloud_id')) {
-      context.handle(
-        _cloudIdMeta,
-        cloudId.isAcceptableOrUnknown(data['cloud_id']!, _cloudIdMeta),
-      );
-    }
     return context;
   }
 
@@ -1112,10 +1075,6 @@ class $RemoteAssetEntityTable extends i3.RemoteAssetEntity
         i0.DriftSqlType.string,
         data['${effectivePrefix}library_id'],
       ),
-      cloudId: attachedDatabase.typeMapping.read(
-        i0.DriftSqlType.string,
-        data['${effectivePrefix}cloud_id'],
-      ),
     );
   }
 
@@ -1156,7 +1115,6 @@ class RemoteAssetEntityData extends i0.DataClass
   final i2.AssetVisibility visibility;
   final String? stackId;
   final String? libraryId;
-  final String? cloudId;
   const RemoteAssetEntityData({
     required this.name,
     required this.type,
@@ -1176,7 +1134,6 @@ class RemoteAssetEntityData extends i0.DataClass
     required this.visibility,
     this.stackId,
     this.libraryId,
-    this.cloudId,
   });
   @override
   Map<String, i0.Expression> toColumns(bool nullToAbsent) {
@@ -1225,9 +1182,6 @@ class RemoteAssetEntityData extends i0.DataClass
     if (!nullToAbsent || libraryId != null) {
       map['library_id'] = i0.Variable<String>(libraryId);
     }
-    if (!nullToAbsent || cloudId != null) {
-      map['cloud_id'] = i0.Variable<String>(cloudId);
-    }
     return map;
   }
 
@@ -1259,7 +1213,6 @@ class RemoteAssetEntityData extends i0.DataClass
       ),
       stackId: serializer.fromJson<String?>(json['stackId']),
       libraryId: serializer.fromJson<String?>(json['libraryId']),
-      cloudId: serializer.fromJson<String?>(json['cloudId']),
     );
   }
   @override
@@ -1288,7 +1241,6 @@ class RemoteAssetEntityData extends i0.DataClass
       ),
       'stackId': serializer.toJson<String?>(stackId),
       'libraryId': serializer.toJson<String?>(libraryId),
-      'cloudId': serializer.toJson<String?>(cloudId),
     };
   }
 
@@ -1311,7 +1263,6 @@ class RemoteAssetEntityData extends i0.DataClass
     i2.AssetVisibility? visibility,
     i0.Value<String?> stackId = const i0.Value.absent(),
     i0.Value<String?> libraryId = const i0.Value.absent(),
-    i0.Value<String?> cloudId = const i0.Value.absent(),
   }) => i1.RemoteAssetEntityData(
     name: name ?? this.name,
     type: type ?? this.type,
@@ -1337,7 +1288,6 @@ class RemoteAssetEntityData extends i0.DataClass
     visibility: visibility ?? this.visibility,
     stackId: stackId.present ? stackId.value : this.stackId,
     libraryId: libraryId.present ? libraryId.value : this.libraryId,
-    cloudId: cloudId.present ? cloudId.value : this.cloudId,
   );
   RemoteAssetEntityData copyWithCompanion(i1.RemoteAssetEntityCompanion data) {
     return RemoteAssetEntityData(
@@ -1369,7 +1319,6 @@ class RemoteAssetEntityData extends i0.DataClass
           : this.visibility,
       stackId: data.stackId.present ? data.stackId.value : this.stackId,
       libraryId: data.libraryId.present ? data.libraryId.value : this.libraryId,
-      cloudId: data.cloudId.present ? data.cloudId.value : this.cloudId,
     );
   }
 
@@ -1393,8 +1342,7 @@ class RemoteAssetEntityData extends i0.DataClass
           ..write('livePhotoVideoId: $livePhotoVideoId, ')
           ..write('visibility: $visibility, ')
           ..write('stackId: $stackId, ')
-          ..write('libraryId: $libraryId, ')
-          ..write('cloudId: $cloudId')
+          ..write('libraryId: $libraryId')
           ..write(')'))
         .toString();
   }
@@ -1419,7 +1367,6 @@ class RemoteAssetEntityData extends i0.DataClass
     visibility,
     stackId,
     libraryId,
-    cloudId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1442,8 +1389,7 @@ class RemoteAssetEntityData extends i0.DataClass
           other.livePhotoVideoId == this.livePhotoVideoId &&
           other.visibility == this.visibility &&
           other.stackId == this.stackId &&
-          other.libraryId == this.libraryId &&
-          other.cloudId == this.cloudId);
+          other.libraryId == this.libraryId);
 }
 
 class RemoteAssetEntityCompanion
@@ -1466,7 +1412,6 @@ class RemoteAssetEntityCompanion
   final i0.Value<i2.AssetVisibility> visibility;
   final i0.Value<String?> stackId;
   final i0.Value<String?> libraryId;
-  final i0.Value<String?> cloudId;
   const RemoteAssetEntityCompanion({
     this.name = const i0.Value.absent(),
     this.type = const i0.Value.absent(),
@@ -1486,7 +1431,6 @@ class RemoteAssetEntityCompanion
     this.visibility = const i0.Value.absent(),
     this.stackId = const i0.Value.absent(),
     this.libraryId = const i0.Value.absent(),
-    this.cloudId = const i0.Value.absent(),
   });
   RemoteAssetEntityCompanion.insert({
     required String name,
@@ -1507,7 +1451,6 @@ class RemoteAssetEntityCompanion
     required i2.AssetVisibility visibility,
     this.stackId = const i0.Value.absent(),
     this.libraryId = const i0.Value.absent(),
-    this.cloudId = const i0.Value.absent(),
   }) : name = i0.Value(name),
        type = i0.Value(type),
        id = i0.Value(id),
@@ -1533,7 +1476,6 @@ class RemoteAssetEntityCompanion
     i0.Expression<int>? visibility,
     i0.Expression<String>? stackId,
     i0.Expression<String>? libraryId,
-    i0.Expression<String>? cloudId,
   }) {
     return i0.RawValuesInsertable({
       if (name != null) 'name': name,
@@ -1554,7 +1496,6 @@ class RemoteAssetEntityCompanion
       if (visibility != null) 'visibility': visibility,
       if (stackId != null) 'stack_id': stackId,
       if (libraryId != null) 'library_id': libraryId,
-      if (cloudId != null) 'cloud_id': cloudId,
     });
   }
 
@@ -1577,7 +1518,6 @@ class RemoteAssetEntityCompanion
     i0.Value<i2.AssetVisibility>? visibility,
     i0.Value<String?>? stackId,
     i0.Value<String?>? libraryId,
-    i0.Value<String?>? cloudId,
   }) {
     return i1.RemoteAssetEntityCompanion(
       name: name ?? this.name,
@@ -1598,7 +1538,6 @@ class RemoteAssetEntityCompanion
       visibility: visibility ?? this.visibility,
       stackId: stackId ?? this.stackId,
       libraryId: libraryId ?? this.libraryId,
-      cloudId: cloudId ?? this.cloudId,
     );
   }
 
@@ -1663,9 +1602,6 @@ class RemoteAssetEntityCompanion
     if (libraryId.present) {
       map['library_id'] = i0.Variable<String>(libraryId.value);
     }
-    if (cloudId.present) {
-      map['cloud_id'] = i0.Variable<String>(cloudId.value);
-    }
     return map;
   }
 
@@ -1689,8 +1625,7 @@ class RemoteAssetEntityCompanion
           ..write('livePhotoVideoId: $livePhotoVideoId, ')
           ..write('visibility: $visibility, ')
           ..write('stackId: $stackId, ')
-          ..write('libraryId: $libraryId, ')
-          ..write('cloudId: $cloudId')
+          ..write('libraryId: $libraryId')
           ..write(')'))
         .toString();
   }
@@ -1707,8 +1642,4 @@ i0.Index get uQRemoteAssetsOwnerLibraryChecksum => i0.Index(
 i0.Index get idxRemoteAssetChecksum => i0.Index(
   'idx_remote_asset_checksum',
   'CREATE INDEX IF NOT EXISTS idx_remote_asset_checksum ON remote_asset_entity (checksum)',
-);
-i0.Index get idxRemoteAssetCloudId => i0.Index(
-  'idx_remote_asset_cloud_id',
-  'CREATE INDEX IF NOT EXISTS idx_remote_asset_cloud_id ON remote_asset_entity (cloud_id)',
 );

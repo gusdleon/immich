@@ -22,7 +22,7 @@ SELECT
 	rae.live_photo_video_id,
 	0 as orientation,
 	rae.stack_id,
-	rae.cloud_id
+	NULL as cloud_id
 FROM
 	remote_asset_entity rae
 LEFT JOIN

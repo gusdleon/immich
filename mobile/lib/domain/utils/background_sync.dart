@@ -187,6 +187,7 @@ class BackgroundSyncManager {
     return _linkedAlbumSyncTask!.whenComplete(() {
       _linkedAlbumSyncTask = null;
     });
+  }
 
   Future<void> syncCloudIds() {
     if (_cloudIdSyncTask != null) {

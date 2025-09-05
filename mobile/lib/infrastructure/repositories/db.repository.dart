@@ -17,6 +17,7 @@ import 'package:immich_mobile/infrastructure/entities/remote_album.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/remote_album_asset.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/remote_album_user.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/remote_asset.entity.dart';
+import 'package:immich_mobile/infrastructure/entities/remote_asset_cloud_id.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/stack.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/store.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/user.entity.dart';
@@ -54,6 +55,7 @@ class IsarDatabaseRepository implements IDatabaseRepository {
     RemoteAlbumEntity,
     RemoteAlbumAssetEntity,
     RemoteAlbumUserEntity,
+    RemoteAssetCloudIdEntity,
     MemoryEntity,
     MemoryAssetEntity,
     StackEntity,
@@ -124,22 +126,13 @@ class Drift extends $Drift implements IDatabaseRepository {
             await m.create(v8.storeEntity);
           },
           from8To9: (m, v9) async {
-            // Add cloudId column to local_asset_entity
-            await m.addColumn(v9.localAssetEntity, v9.localAssetEntity.cloudId);
-            await m.createIndex(v9.idxLocalAssetCloudId);
-            // Add cloudId column to remote_asset_entity
-            await m.addColumn(v9.remoteAssetEntity, v9.remoteAssetEntity.cloudId);
-            await m.createIndex(v9.idxRemoteAssetCloudId);
-          },
-          from8To9: (m, v9) async {
             await m.addColumn(v9.localAlbumEntity, v9.localAlbumEntity.linkedRemoteAlbumId);
           },
           from9To10: (m, v10) async {
             // Add cloud_id to local and remote asset tables
             await m.addColumn(v10.localAssetEntity, v10.localAssetEntity.cloudId);
             await m.createIndex(v10.idxLocalAssetCloudId);
-            await m.addColumn(v10.remoteAssetEntity, v10.remoteAssetEntity.cloudId);
-            await m.createIndex(v10.idxRemoteAssetCloudId);
+            await m.createTable(v10.remoteAssetCloudIdEntity);
           },
         ),
       );

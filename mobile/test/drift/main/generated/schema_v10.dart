@@ -512,13 +512,6 @@ class RemoteAssetEntity extends Table
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  late final GeneratedColumn<String> cloudId = GeneratedColumn<String>(
-    'cloud_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     name,
@@ -539,7 +532,6 @@ class RemoteAssetEntity extends Table
     visibility,
     stackId,
     libraryId,
-    cloudId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -624,10 +616,6 @@ class RemoteAssetEntity extends Table
         DriftSqlType.string,
         data['${effectivePrefix}library_id'],
       ),
-      cloudId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}cloud_id'],
-      ),
     );
   }
 
@@ -662,7 +650,6 @@ class RemoteAssetEntityData extends DataClass
   final int visibility;
   final String? stackId;
   final String? libraryId;
-  final String? cloudId;
   const RemoteAssetEntityData({
     required this.name,
     required this.type,
@@ -682,7 +669,6 @@ class RemoteAssetEntityData extends DataClass
     required this.visibility,
     this.stackId,
     this.libraryId,
-    this.cloudId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -723,9 +709,6 @@ class RemoteAssetEntityData extends DataClass
     if (!nullToAbsent || libraryId != null) {
       map['library_id'] = Variable<String>(libraryId);
     }
-    if (!nullToAbsent || cloudId != null) {
-      map['cloud_id'] = Variable<String>(cloudId);
-    }
     return map;
   }
 
@@ -753,7 +736,6 @@ class RemoteAssetEntityData extends DataClass
       visibility: serializer.fromJson<int>(json['visibility']),
       stackId: serializer.fromJson<String?>(json['stackId']),
       libraryId: serializer.fromJson<String?>(json['libraryId']),
-      cloudId: serializer.fromJson<String?>(json['cloudId']),
     );
   }
   @override
@@ -778,7 +760,6 @@ class RemoteAssetEntityData extends DataClass
       'visibility': serializer.toJson<int>(visibility),
       'stackId': serializer.toJson<String?>(stackId),
       'libraryId': serializer.toJson<String?>(libraryId),
-      'cloudId': serializer.toJson<String?>(cloudId),
     };
   }
 
@@ -801,7 +782,6 @@ class RemoteAssetEntityData extends DataClass
     int? visibility,
     Value<String?> stackId = const Value.absent(),
     Value<String?> libraryId = const Value.absent(),
-    Value<String?> cloudId = const Value.absent(),
   }) => RemoteAssetEntityData(
     name: name ?? this.name,
     type: type ?? this.type,
@@ -827,7 +807,6 @@ class RemoteAssetEntityData extends DataClass
     visibility: visibility ?? this.visibility,
     stackId: stackId.present ? stackId.value : this.stackId,
     libraryId: libraryId.present ? libraryId.value : this.libraryId,
-    cloudId: cloudId.present ? cloudId.value : this.cloudId,
   );
   RemoteAssetEntityData copyWithCompanion(RemoteAssetEntityCompanion data) {
     return RemoteAssetEntityData(
@@ -859,7 +838,6 @@ class RemoteAssetEntityData extends DataClass
           : this.visibility,
       stackId: data.stackId.present ? data.stackId.value : this.stackId,
       libraryId: data.libraryId.present ? data.libraryId.value : this.libraryId,
-      cloudId: data.cloudId.present ? data.cloudId.value : this.cloudId,
     );
   }
 
@@ -883,8 +861,7 @@ class RemoteAssetEntityData extends DataClass
           ..write('livePhotoVideoId: $livePhotoVideoId, ')
           ..write('visibility: $visibility, ')
           ..write('stackId: $stackId, ')
-          ..write('libraryId: $libraryId, ')
-          ..write('cloudId: $cloudId')
+          ..write('libraryId: $libraryId')
           ..write(')'))
         .toString();
   }
@@ -909,7 +886,6 @@ class RemoteAssetEntityData extends DataClass
     visibility,
     stackId,
     libraryId,
-    cloudId,
   );
   @override
   bool operator ==(Object other) =>
@@ -932,8 +908,7 @@ class RemoteAssetEntityData extends DataClass
           other.livePhotoVideoId == this.livePhotoVideoId &&
           other.visibility == this.visibility &&
           other.stackId == this.stackId &&
-          other.libraryId == this.libraryId &&
-          other.cloudId == this.cloudId);
+          other.libraryId == this.libraryId);
 }
 
 class RemoteAssetEntityCompanion
@@ -956,7 +931,6 @@ class RemoteAssetEntityCompanion
   final Value<int> visibility;
   final Value<String?> stackId;
   final Value<String?> libraryId;
-  final Value<String?> cloudId;
   const RemoteAssetEntityCompanion({
     this.name = const Value.absent(),
     this.type = const Value.absent(),
@@ -976,7 +950,6 @@ class RemoteAssetEntityCompanion
     this.visibility = const Value.absent(),
     this.stackId = const Value.absent(),
     this.libraryId = const Value.absent(),
-    this.cloudId = const Value.absent(),
   });
   RemoteAssetEntityCompanion.insert({
     required String name,
@@ -997,7 +970,6 @@ class RemoteAssetEntityCompanion
     required int visibility,
     this.stackId = const Value.absent(),
     this.libraryId = const Value.absent(),
-    this.cloudId = const Value.absent(),
   }) : name = Value(name),
        type = Value(type),
        id = Value(id),
@@ -1023,7 +995,6 @@ class RemoteAssetEntityCompanion
     Expression<int>? visibility,
     Expression<String>? stackId,
     Expression<String>? libraryId,
-    Expression<String>? cloudId,
   }) {
     return RawValuesInsertable({
       if (name != null) 'name': name,
@@ -1044,7 +1015,6 @@ class RemoteAssetEntityCompanion
       if (visibility != null) 'visibility': visibility,
       if (stackId != null) 'stack_id': stackId,
       if (libraryId != null) 'library_id': libraryId,
-      if (cloudId != null) 'cloud_id': cloudId,
     });
   }
 
@@ -1067,7 +1037,6 @@ class RemoteAssetEntityCompanion
     Value<int>? visibility,
     Value<String?>? stackId,
     Value<String?>? libraryId,
-    Value<String?>? cloudId,
   }) {
     return RemoteAssetEntityCompanion(
       name: name ?? this.name,
@@ -1088,7 +1057,6 @@ class RemoteAssetEntityCompanion
       visibility: visibility ?? this.visibility,
       stackId: stackId ?? this.stackId,
       libraryId: libraryId ?? this.libraryId,
-      cloudId: cloudId ?? this.cloudId,
     );
   }
 
@@ -1149,9 +1117,6 @@ class RemoteAssetEntityCompanion
     if (libraryId.present) {
       map['library_id'] = Variable<String>(libraryId.value);
     }
-    if (cloudId.present) {
-      map['cloud_id'] = Variable<String>(cloudId.value);
-    }
     return map;
   }
 
@@ -1175,8 +1140,7 @@ class RemoteAssetEntityCompanion
           ..write('livePhotoVideoId: $livePhotoVideoId, ')
           ..write('visibility: $visibility, ')
           ..write('stackId: $stackId, ')
-          ..write('libraryId: $libraryId, ')
-          ..write('cloudId: $cloudId')
+          ..write('libraryId: $libraryId')
           ..write(')'))
         .toString();
   }
@@ -4808,6 +4772,191 @@ class RemoteAlbumUserEntityCompanion
   }
 }
 
+class RemoteAssetCloudIdEntity extends Table
+    with TableInfo<RemoteAssetCloudIdEntity, RemoteAssetCloudIdEntityData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  RemoteAssetCloudIdEntity(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> assetId = GeneratedColumn<String>(
+    'asset_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES remote_asset_entity (id) ON DELETE CASCADE',
+    ),
+  );
+  late final GeneratedColumn<String> cloudId = GeneratedColumn<String>(
+    'cloud_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [assetId, cloudId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'remote_asset_cloud_id_entity';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {assetId};
+  @override
+  RemoteAssetCloudIdEntityData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RemoteAssetCloudIdEntityData(
+      assetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}asset_id'],
+      )!,
+      cloudId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cloud_id'],
+      ),
+    );
+  }
+
+  @override
+  RemoteAssetCloudIdEntity createAlias(String alias) {
+    return RemoteAssetCloudIdEntity(attachedDatabase, alias);
+  }
+
+  @override
+  bool get withoutRowId => true;
+  @override
+  bool get isStrict => true;
+}
+
+class RemoteAssetCloudIdEntityData extends DataClass
+    implements Insertable<RemoteAssetCloudIdEntityData> {
+  final String assetId;
+  final String? cloudId;
+  const RemoteAssetCloudIdEntityData({required this.assetId, this.cloudId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['asset_id'] = Variable<String>(assetId);
+    if (!nullToAbsent || cloudId != null) {
+      map['cloud_id'] = Variable<String>(cloudId);
+    }
+    return map;
+  }
+
+  factory RemoteAssetCloudIdEntityData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RemoteAssetCloudIdEntityData(
+      assetId: serializer.fromJson<String>(json['assetId']),
+      cloudId: serializer.fromJson<String?>(json['cloudId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'assetId': serializer.toJson<String>(assetId),
+      'cloudId': serializer.toJson<String?>(cloudId),
+    };
+  }
+
+  RemoteAssetCloudIdEntityData copyWith({
+    String? assetId,
+    Value<String?> cloudId = const Value.absent(),
+  }) => RemoteAssetCloudIdEntityData(
+    assetId: assetId ?? this.assetId,
+    cloudId: cloudId.present ? cloudId.value : this.cloudId,
+  );
+  RemoteAssetCloudIdEntityData copyWithCompanion(
+    RemoteAssetCloudIdEntityCompanion data,
+  ) {
+    return RemoteAssetCloudIdEntityData(
+      assetId: data.assetId.present ? data.assetId.value : this.assetId,
+      cloudId: data.cloudId.present ? data.cloudId.value : this.cloudId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RemoteAssetCloudIdEntityData(')
+          ..write('assetId: $assetId, ')
+          ..write('cloudId: $cloudId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(assetId, cloudId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RemoteAssetCloudIdEntityData &&
+          other.assetId == this.assetId &&
+          other.cloudId == this.cloudId);
+}
+
+class RemoteAssetCloudIdEntityCompanion
+    extends UpdateCompanion<RemoteAssetCloudIdEntityData> {
+  final Value<String> assetId;
+  final Value<String?> cloudId;
+  const RemoteAssetCloudIdEntityCompanion({
+    this.assetId = const Value.absent(),
+    this.cloudId = const Value.absent(),
+  });
+  RemoteAssetCloudIdEntityCompanion.insert({
+    required String assetId,
+    this.cloudId = const Value.absent(),
+  }) : assetId = Value(assetId);
+  static Insertable<RemoteAssetCloudIdEntityData> custom({
+    Expression<String>? assetId,
+    Expression<String>? cloudId,
+  }) {
+    return RawValuesInsertable({
+      if (assetId != null) 'asset_id': assetId,
+      if (cloudId != null) 'cloud_id': cloudId,
+    });
+  }
+
+  RemoteAssetCloudIdEntityCompanion copyWith({
+    Value<String>? assetId,
+    Value<String?>? cloudId,
+  }) {
+    return RemoteAssetCloudIdEntityCompanion(
+      assetId: assetId ?? this.assetId,
+      cloudId: cloudId ?? this.cloudId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (assetId.present) {
+      map['asset_id'] = Variable<String>(assetId.value);
+    }
+    if (cloudId.present) {
+      map['cloud_id'] = Variable<String>(cloudId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RemoteAssetCloudIdEntityCompanion(')
+          ..write('assetId: $assetId, ')
+          ..write('cloudId: $cloudId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class MemoryEntity extends Table
     with TableInfo<MemoryEntity, MemoryEntityData> {
   @override
@@ -6735,10 +6884,6 @@ class DatabaseAtV10 extends GeneratedDatabase {
     'idx_remote_asset_checksum',
     'CREATE INDEX IF NOT EXISTS idx_remote_asset_checksum ON remote_asset_entity (checksum)',
   );
-  late final Index idxRemoteAssetCloudId = Index(
-    'idx_remote_asset_cloud_id',
-    'CREATE INDEX IF NOT EXISTS idx_remote_asset_cloud_id ON remote_asset_entity (cloud_id)',
-  );
   late final UserMetadataEntity userMetadataEntity = UserMetadataEntity(this);
   late final PartnerEntity partnerEntity = PartnerEntity(this);
   late final RemoteExifEntity remoteExifEntity = RemoteExifEntity(this);
@@ -6746,6 +6891,8 @@ class DatabaseAtV10 extends GeneratedDatabase {
       RemoteAlbumAssetEntity(this);
   late final RemoteAlbumUserEntity remoteAlbumUserEntity =
       RemoteAlbumUserEntity(this);
+  late final RemoteAssetCloudIdEntity remoteAssetCloudIdEntity =
+      RemoteAssetCloudIdEntity(this);
   late final MemoryEntity memoryEntity = MemoryEntity(this);
   late final MemoryAssetEntity memoryAssetEntity = MemoryAssetEntity(this);
   late final PersonEntity personEntity = PersonEntity(this);
@@ -6773,12 +6920,12 @@ class DatabaseAtV10 extends GeneratedDatabase {
     uQRemoteAssetsOwnerChecksum,
     uQRemoteAssetsOwnerLibraryChecksum,
     idxRemoteAssetChecksum,
-    idxRemoteAssetCloudId,
     userMetadataEntity,
     partnerEntity,
     remoteExifEntity,
     remoteAlbumAssetEntity,
     remoteAlbumUserEntity,
+    remoteAssetCloudIdEntity,
     memoryEntity,
     memoryAssetEntity,
     personEntity,

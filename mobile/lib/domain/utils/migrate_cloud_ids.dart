@@ -61,13 +61,18 @@ Future<List<_CloudIdMapping>> _fetchCloudIdMappings(Drift drift, String userId) 
             drift.localAssetEntity.checksum.equalsExp(drift.remoteAssetEntity.checksum),
             useColumns: false,
           ),
+          leftOuterJoin(
+            drift.remoteAssetCloudIdEntity,
+            drift.localAssetEntity.cloudId.equalsExp(drift.remoteAssetCloudIdEntity.cloudId),
+            useColumns: false,
+          ),
         ])
         ..addColumns([drift.remoteAssetEntity.id, drift.localAssetEntity.cloudId])
         ..where(
           drift.localAssetEntity.id.isNotNull() &
               drift.localAssetEntity.cloudId.isNotNull() &
               drift.remoteAssetEntity.ownerId.equals(userId) &
-              drift.remoteAssetEntity.cloudId.isNull(),
+              drift.remoteAssetCloudIdEntity.cloudId.isNull(),
         );
   return query
       .map(

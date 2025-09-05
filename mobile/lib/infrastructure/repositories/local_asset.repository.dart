@@ -76,13 +76,18 @@ class DriftLocalAssetRepository extends DriftDatabaseRepository {
     final query =
         _db.localAssetEntity.selectOnly().join([
             leftOuterJoin(
+              _db.remoteAssetCloudIdEntity,
+              _db.localAssetEntity.cloudId.equalsExp(_db.remoteAssetCloudIdEntity.cloudId),
+              useColumns: false,
+            ),
+            leftOuterJoin(
               _db.remoteAssetEntity,
-              _db.localAssetEntity.cloudId.equalsExp(_db.remoteAssetEntity.cloudId),
+              _db.remoteAssetCloudIdEntity.assetId.equalsExp(_db.remoteAssetEntity.id),
               useColumns: false,
             ),
           ])
           ..addColumns([_db.localAssetEntity.id, _db.remoteAssetEntity.checksum])
-          ..where(_db.remoteAssetEntity.cloudId.isNotNull() & _db.localAssetEntity.checksum.isNull());
+          ..where(_db.remoteAssetCloudIdEntity.cloudId.isNotNull() & _db.localAssetEntity.checksum.isNull());
     return query
         .map(
           (row) => (assetId: row.read(_db.localAssetEntity.id)!, checksum: row.read(_db.remoteAssetEntity.checksum)!),
