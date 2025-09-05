@@ -128,7 +128,6 @@ class BackgroundSyncManager {
         });
   }
 
-  // No need to cancel the task, as it can also be run when the user logs out
   Future<void> hashAssets() {
     if (_hashTask != null) {
       return _hashTask!.future;
