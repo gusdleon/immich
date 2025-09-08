@@ -7,13 +7,13 @@ version = "3.32.8-stable"
 backend = "asdf:flutter"
 
 [tools."github:CQLabs/homebrew-dcm"]
-version = "1.31.4"
+version = "1.30.0"
 backend = "github:CQLabs/homebrew-dcm"
 
-[tools."github:CQLabs/homebrew-dcm".platforms.linux-x64]
-checksum = "blake3:e9df5b765df327e1248fccf2c6165a89d632a065667f99c01765bf3047b94955"
-size = 8821083
-url = "https://github.com/CQLabs/homebrew-dcm/releases/download/1.31.4/dcm-linux-x64-release.zip"
+[tools."github:CQLabs/homebrew-dcm".platforms.macos-arm64]
+checksum = "blake3:61b4115ce0ddd348d88c2306ef4999f66a5742cf27a9535143636ff8e5b71470"
+size = 8276377
+url = "https://github.com/CQLabs/homebrew-dcm/releases/download/1.30.0/dcm-macos-arm-release.zip"
 
 [tools.node]
 version = "22.18.0"
