@@ -5,6 +5,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:immich_mobile/domain/interfaces/db.interface.dart';
 import 'package:immich_mobile/infrastructure/entities/asset_face.entity.dart';
+import 'package:immich_mobile/infrastructure/entities/auth_user.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/exif.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/local_album.entity.dart';
 import 'package:immich_mobile/infrastructure/entities/local_album_asset.entity.dart';
@@ -44,6 +45,7 @@ class IsarDatabaseRepository implements IDatabaseRepository {
 
 @DriftDatabase(
   tables: [
+    AuthUserEntity,
     UserEntity,
     UserMetadataEntity,
     PartnerEntity,
@@ -129,10 +131,9 @@ class Drift extends $Drift implements IDatabaseRepository {
             await m.addColumn(v9.localAlbumEntity, v9.localAlbumEntity.linkedRemoteAlbumId);
           },
           from9To10: (m, v10) async {
-            // Add cloud_id to local and remote asset tables
-            await m.addColumn(v10.localAssetEntity, v10.localAssetEntity.cloudId);
-            await m.createIndex(v10.idxLocalAssetCloudId);
-            await m.createTable(v10.remoteAssetCloudIdEntity);
+            await m.createTable(v10.authUserEntity);
+            await m.addColumn(v10.userEntity, v10.userEntity.avatarColor);
+            await m.alterTable(TableMigration(v10.userEntity));
           },
         ),
       );
@@ -149,7 +150,7 @@ class Drift extends $Drift implements IDatabaseRepository {
       await customStatement('PRAGMA foreign_keys = ON');
       await customStatement('PRAGMA synchronous = NORMAL');
       await customStatement('PRAGMA journal_mode = WAL');
-      await customStatement('PRAGMA busy_timeout = 500');
+      await customStatement('PRAGMA busy_timeout = 30000');
     },
   );
 }
