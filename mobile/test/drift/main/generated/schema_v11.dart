@@ -1486,8 +1486,8 @@ class LocalAssetEntity extends Table
     requiredDuringInsert: false,
     defaultValue: const CustomExpression('0'),
   );
-  late final GeneratedColumn<String> cloudId = GeneratedColumn<String>(
-    'cloud_id',
+  late final GeneratedColumn<String> iCloudId = GeneratedColumn<String>(
+    'i_cloud_id',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -1506,7 +1506,7 @@ class LocalAssetEntity extends Table
     checksum,
     isFavorite,
     orientation,
-    cloudId,
+    iCloudId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1563,9 +1563,9 @@ class LocalAssetEntity extends Table
         DriftSqlType.int,
         data['${effectivePrefix}orientation'],
       )!,
-      cloudId: attachedDatabase.typeMapping.read(
+      iCloudId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}cloud_id'],
+        data['${effectivePrefix}i_cloud_id'],
       ),
     );
   }
@@ -1594,7 +1594,7 @@ class LocalAssetEntityData extends DataClass
   final String? checksum;
   final bool isFavorite;
   final int orientation;
-  final String? cloudId;
+  final String? iCloudId;
   const LocalAssetEntityData({
     required this.name,
     required this.type,
@@ -1607,7 +1607,7 @@ class LocalAssetEntityData extends DataClass
     this.checksum,
     required this.isFavorite,
     required this.orientation,
-    this.cloudId,
+    this.iCloudId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1631,8 +1631,8 @@ class LocalAssetEntityData extends DataClass
     }
     map['is_favorite'] = Variable<bool>(isFavorite);
     map['orientation'] = Variable<int>(orientation);
-    if (!nullToAbsent || cloudId != null) {
-      map['cloud_id'] = Variable<String>(cloudId);
+    if (!nullToAbsent || iCloudId != null) {
+      map['i_cloud_id'] = Variable<String>(iCloudId);
     }
     return map;
   }
@@ -1654,7 +1654,7 @@ class LocalAssetEntityData extends DataClass
       checksum: serializer.fromJson<String?>(json['checksum']),
       isFavorite: serializer.fromJson<bool>(json['isFavorite']),
       orientation: serializer.fromJson<int>(json['orientation']),
-      cloudId: serializer.fromJson<String?>(json['cloudId']),
+      iCloudId: serializer.fromJson<String?>(json['iCloudId']),
     );
   }
   @override
@@ -1672,7 +1672,7 @@ class LocalAssetEntityData extends DataClass
       'checksum': serializer.toJson<String?>(checksum),
       'isFavorite': serializer.toJson<bool>(isFavorite),
       'orientation': serializer.toJson<int>(orientation),
-      'cloudId': serializer.toJson<String?>(cloudId),
+      'iCloudId': serializer.toJson<String?>(iCloudId),
     };
   }
 
@@ -1688,7 +1688,7 @@ class LocalAssetEntityData extends DataClass
     Value<String?> checksum = const Value.absent(),
     bool? isFavorite,
     int? orientation,
-    Value<String?> cloudId = const Value.absent(),
+    Value<String?> iCloudId = const Value.absent(),
   }) => LocalAssetEntityData(
     name: name ?? this.name,
     type: type ?? this.type,
@@ -1703,7 +1703,7 @@ class LocalAssetEntityData extends DataClass
     checksum: checksum.present ? checksum.value : this.checksum,
     isFavorite: isFavorite ?? this.isFavorite,
     orientation: orientation ?? this.orientation,
-    cloudId: cloudId.present ? cloudId.value : this.cloudId,
+    iCloudId: iCloudId.present ? iCloudId.value : this.iCloudId,
   );
   LocalAssetEntityData copyWithCompanion(LocalAssetEntityCompanion data) {
     return LocalAssetEntityData(
@@ -1724,7 +1724,7 @@ class LocalAssetEntityData extends DataClass
       orientation: data.orientation.present
           ? data.orientation.value
           : this.orientation,
-      cloudId: data.cloudId.present ? data.cloudId.value : this.cloudId,
+      iCloudId: data.iCloudId.present ? data.iCloudId.value : this.iCloudId,
     );
   }
 
@@ -1742,7 +1742,7 @@ class LocalAssetEntityData extends DataClass
           ..write('checksum: $checksum, ')
           ..write('isFavorite: $isFavorite, ')
           ..write('orientation: $orientation, ')
-          ..write('cloudId: $cloudId')
+          ..write('iCloudId: $iCloudId')
           ..write(')'))
         .toString();
   }
@@ -1760,7 +1760,7 @@ class LocalAssetEntityData extends DataClass
     checksum,
     isFavorite,
     orientation,
-    cloudId,
+    iCloudId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1777,7 +1777,7 @@ class LocalAssetEntityData extends DataClass
           other.checksum == this.checksum &&
           other.isFavorite == this.isFavorite &&
           other.orientation == this.orientation &&
-          other.cloudId == this.cloudId);
+          other.iCloudId == this.iCloudId);
 }
 
 class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
@@ -1792,7 +1792,7 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
   final Value<String?> checksum;
   final Value<bool> isFavorite;
   final Value<int> orientation;
-  final Value<String?> cloudId;
+  final Value<String?> iCloudId;
   const LocalAssetEntityCompanion({
     this.name = const Value.absent(),
     this.type = const Value.absent(),
@@ -1805,7 +1805,7 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
     this.checksum = const Value.absent(),
     this.isFavorite = const Value.absent(),
     this.orientation = const Value.absent(),
-    this.cloudId = const Value.absent(),
+    this.iCloudId = const Value.absent(),
   });
   LocalAssetEntityCompanion.insert({
     required String name,
@@ -1819,7 +1819,7 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
     this.checksum = const Value.absent(),
     this.isFavorite = const Value.absent(),
     this.orientation = const Value.absent(),
-    this.cloudId = const Value.absent(),
+    this.iCloudId = const Value.absent(),
   }) : name = Value(name),
        type = Value(type),
        id = Value(id);
@@ -1835,7 +1835,7 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
     Expression<String>? checksum,
     Expression<bool>? isFavorite,
     Expression<int>? orientation,
-    Expression<String>? cloudId,
+    Expression<String>? iCloudId,
   }) {
     return RawValuesInsertable({
       if (name != null) 'name': name,
@@ -1849,7 +1849,7 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
       if (checksum != null) 'checksum': checksum,
       if (isFavorite != null) 'is_favorite': isFavorite,
       if (orientation != null) 'orientation': orientation,
-      if (cloudId != null) 'cloud_id': cloudId,
+      if (iCloudId != null) 'i_cloud_id': iCloudId,
     });
   }
 
@@ -1865,7 +1865,7 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
     Value<String?>? checksum,
     Value<bool>? isFavorite,
     Value<int>? orientation,
-    Value<String?>? cloudId,
+    Value<String?>? iCloudId,
   }) {
     return LocalAssetEntityCompanion(
       name: name ?? this.name,
@@ -1879,7 +1879,7 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
       checksum: checksum ?? this.checksum,
       isFavorite: isFavorite ?? this.isFavorite,
       orientation: orientation ?? this.orientation,
-      cloudId: cloudId ?? this.cloudId,
+      iCloudId: iCloudId ?? this.iCloudId,
     );
   }
 
@@ -1919,8 +1919,8 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
     if (orientation.present) {
       map['orientation'] = Variable<int>(orientation.value);
     }
-    if (cloudId.present) {
-      map['cloud_id'] = Variable<String>(cloudId.value);
+    if (iCloudId.present) {
+      map['i_cloud_id'] = Variable<String>(iCloudId.value);
     }
     return map;
   }
@@ -1939,7 +1939,7 @@ class LocalAssetEntityCompanion extends UpdateCompanion<LocalAssetEntityData> {
           ..write('checksum: $checksum, ')
           ..write('isFavorite: $isFavorite, ')
           ..write('orientation: $orientation, ')
-          ..write('cloudId: $cloudId')
+          ..write('iCloudId: $iCloudId')
           ..write(')'))
         .toString();
   }

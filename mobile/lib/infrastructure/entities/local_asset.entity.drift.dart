@@ -21,7 +21,7 @@ typedef $$LocalAssetEntityTableCreateCompanionBuilder =
       i0.Value<String?> checksum,
       i0.Value<bool> isFavorite,
       i0.Value<int> orientation,
-      i0.Value<String?> cloudId,
+      i0.Value<String?> iCloudId,
     });
 typedef $$LocalAssetEntityTableUpdateCompanionBuilder =
     i1.LocalAssetEntityCompanion Function({
@@ -36,7 +36,7 @@ typedef $$LocalAssetEntityTableUpdateCompanionBuilder =
       i0.Value<String?> checksum,
       i0.Value<bool> isFavorite,
       i0.Value<int> orientation,
-      i0.Value<String?> cloudId,
+      i0.Value<String?> iCloudId,
     });
 
 class $$LocalAssetEntityTableFilterComposer
@@ -104,8 +104,8 @@ class $$LocalAssetEntityTableFilterComposer
     builder: (column) => i0.ColumnFilters(column),
   );
 
-  i0.ColumnFilters<String> get cloudId => $composableBuilder(
-    column: $table.cloudId,
+  i0.ColumnFilters<String> get iCloudId => $composableBuilder(
+    column: $table.iCloudId,
     builder: (column) => i0.ColumnFilters(column),
   );
 }
@@ -174,8 +174,8 @@ class $$LocalAssetEntityTableOrderingComposer
     builder: (column) => i0.ColumnOrderings(column),
   );
 
-  i0.ColumnOrderings<String> get cloudId => $composableBuilder(
-    column: $table.cloudId,
+  i0.ColumnOrderings<String> get iCloudId => $composableBuilder(
+    column: $table.iCloudId,
     builder: (column) => i0.ColumnOrderings(column),
   );
 }
@@ -228,8 +228,8 @@ class $$LocalAssetEntityTableAnnotationComposer
     builder: (column) => column,
   );
 
-  i0.GeneratedColumn<String> get cloudId =>
-      $composableBuilder(column: $table.cloudId, builder: (column) => column);
+  i0.GeneratedColumn<String> get iCloudId =>
+      $composableBuilder(column: $table.iCloudId, builder: (column) => column);
 }
 
 class $$LocalAssetEntityTableTableManager
@@ -283,7 +283,7 @@ class $$LocalAssetEntityTableTableManager
                 i0.Value<String?> checksum = const i0.Value.absent(),
                 i0.Value<bool> isFavorite = const i0.Value.absent(),
                 i0.Value<int> orientation = const i0.Value.absent(),
-                i0.Value<String?> cloudId = const i0.Value.absent(),
+                i0.Value<String?> iCloudId = const i0.Value.absent(),
               }) => i1.LocalAssetEntityCompanion(
                 name: name,
                 type: type,
@@ -296,7 +296,7 @@ class $$LocalAssetEntityTableTableManager
                 checksum: checksum,
                 isFavorite: isFavorite,
                 orientation: orientation,
-                cloudId: cloudId,
+                iCloudId: iCloudId,
               ),
           createCompanionCallback:
               ({
@@ -311,7 +311,7 @@ class $$LocalAssetEntityTableTableManager
                 i0.Value<String?> checksum = const i0.Value.absent(),
                 i0.Value<bool> isFavorite = const i0.Value.absent(),
                 i0.Value<int> orientation = const i0.Value.absent(),
-                i0.Value<String?> cloudId = const i0.Value.absent(),
+                i0.Value<String?> iCloudId = const i0.Value.absent(),
               }) => i1.LocalAssetEntityCompanion.insert(
                 name: name,
                 type: type,
@@ -324,7 +324,7 @@ class $$LocalAssetEntityTableTableManager
                 checksum: checksum,
                 isFavorite: isFavorite,
                 orientation: orientation,
-                cloudId: cloudId,
+                iCloudId: iCloudId,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), i0.BaseReferences(db, table, e)))
@@ -492,12 +492,12 @@ class $LocalAssetEntityTable extends i3.LocalAssetEntity
     requiredDuringInsert: false,
     defaultValue: const i4.Constant(0),
   );
-  static const i0.VerificationMeta _cloudIdMeta = const i0.VerificationMeta(
-    'cloudId',
+  static const i0.VerificationMeta _iCloudIdMeta = const i0.VerificationMeta(
+    'iCloudId',
   );
   @override
-  late final i0.GeneratedColumn<String> cloudId = i0.GeneratedColumn<String>(
-    'cloud_id',
+  late final i0.GeneratedColumn<String> iCloudId = i0.GeneratedColumn<String>(
+    'i_cloud_id',
     aliasedName,
     true,
     type: i0.DriftSqlType.string,
@@ -516,7 +516,7 @@ class $LocalAssetEntityTable extends i3.LocalAssetEntity
     checksum,
     isFavorite,
     orientation,
-    cloudId,
+    iCloudId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -597,10 +597,10 @@ class $LocalAssetEntityTable extends i3.LocalAssetEntity
         ),
       );
     }
-    if (data.containsKey('cloud_id')) {
+    if (data.containsKey('i_cloud_id')) {
       context.handle(
-        _cloudIdMeta,
-        cloudId.isAcceptableOrUnknown(data['cloud_id']!, _cloudIdMeta),
+        _iCloudIdMeta,
+        iCloudId.isAcceptableOrUnknown(data['i_cloud_id']!, _iCloudIdMeta),
       );
     }
     return context;
@@ -661,9 +661,9 @@ class $LocalAssetEntityTable extends i3.LocalAssetEntity
         i0.DriftSqlType.int,
         data['${effectivePrefix}orientation'],
       )!,
-      cloudId: attachedDatabase.typeMapping.read(
+      iCloudId: attachedDatabase.typeMapping.read(
         i0.DriftSqlType.string,
-        data['${effectivePrefix}cloud_id'],
+        data['${effectivePrefix}i_cloud_id'],
       ),
     );
   }
@@ -694,7 +694,7 @@ class LocalAssetEntityData extends i0.DataClass
   final String? checksum;
   final bool isFavorite;
   final int orientation;
-  final String? cloudId;
+  final String? iCloudId;
   const LocalAssetEntityData({
     required this.name,
     required this.type,
@@ -707,7 +707,7 @@ class LocalAssetEntityData extends i0.DataClass
     this.checksum,
     required this.isFavorite,
     required this.orientation,
-    this.cloudId,
+    this.iCloudId,
   });
   @override
   Map<String, i0.Expression> toColumns(bool nullToAbsent) {
@@ -735,8 +735,8 @@ class LocalAssetEntityData extends i0.DataClass
     }
     map['is_favorite'] = i0.Variable<bool>(isFavorite);
     map['orientation'] = i0.Variable<int>(orientation);
-    if (!nullToAbsent || cloudId != null) {
-      map['cloud_id'] = i0.Variable<String>(cloudId);
+    if (!nullToAbsent || iCloudId != null) {
+      map['i_cloud_id'] = i0.Variable<String>(iCloudId);
     }
     return map;
   }
@@ -760,7 +760,7 @@ class LocalAssetEntityData extends i0.DataClass
       checksum: serializer.fromJson<String?>(json['checksum']),
       isFavorite: serializer.fromJson<bool>(json['isFavorite']),
       orientation: serializer.fromJson<int>(json['orientation']),
-      cloudId: serializer.fromJson<String?>(json['cloudId']),
+      iCloudId: serializer.fromJson<String?>(json['iCloudId']),
     );
   }
   @override
@@ -780,7 +780,7 @@ class LocalAssetEntityData extends i0.DataClass
       'checksum': serializer.toJson<String?>(checksum),
       'isFavorite': serializer.toJson<bool>(isFavorite),
       'orientation': serializer.toJson<int>(orientation),
-      'cloudId': serializer.toJson<String?>(cloudId),
+      'iCloudId': serializer.toJson<String?>(iCloudId),
     };
   }
 
@@ -796,7 +796,7 @@ class LocalAssetEntityData extends i0.DataClass
     i0.Value<String?> checksum = const i0.Value.absent(),
     bool? isFavorite,
     int? orientation,
-    i0.Value<String?> cloudId = const i0.Value.absent(),
+    i0.Value<String?> iCloudId = const i0.Value.absent(),
   }) => i1.LocalAssetEntityData(
     name: name ?? this.name,
     type: type ?? this.type,
@@ -811,7 +811,7 @@ class LocalAssetEntityData extends i0.DataClass
     checksum: checksum.present ? checksum.value : this.checksum,
     isFavorite: isFavorite ?? this.isFavorite,
     orientation: orientation ?? this.orientation,
-    cloudId: cloudId.present ? cloudId.value : this.cloudId,
+    iCloudId: iCloudId.present ? iCloudId.value : this.iCloudId,
   );
   LocalAssetEntityData copyWithCompanion(i1.LocalAssetEntityCompanion data) {
     return LocalAssetEntityData(
@@ -832,7 +832,7 @@ class LocalAssetEntityData extends i0.DataClass
       orientation: data.orientation.present
           ? data.orientation.value
           : this.orientation,
-      cloudId: data.cloudId.present ? data.cloudId.value : this.cloudId,
+      iCloudId: data.iCloudId.present ? data.iCloudId.value : this.iCloudId,
     );
   }
 
@@ -850,7 +850,7 @@ class LocalAssetEntityData extends i0.DataClass
           ..write('checksum: $checksum, ')
           ..write('isFavorite: $isFavorite, ')
           ..write('orientation: $orientation, ')
-          ..write('cloudId: $cloudId')
+          ..write('iCloudId: $iCloudId')
           ..write(')'))
         .toString();
   }
@@ -868,7 +868,7 @@ class LocalAssetEntityData extends i0.DataClass
     checksum,
     isFavorite,
     orientation,
-    cloudId,
+    iCloudId,
   );
   @override
   bool operator ==(Object other) =>
@@ -885,7 +885,7 @@ class LocalAssetEntityData extends i0.DataClass
           other.checksum == this.checksum &&
           other.isFavorite == this.isFavorite &&
           other.orientation == this.orientation &&
-          other.cloudId == this.cloudId);
+          other.iCloudId == this.iCloudId);
 }
 
 class LocalAssetEntityCompanion
@@ -901,7 +901,7 @@ class LocalAssetEntityCompanion
   final i0.Value<String?> checksum;
   final i0.Value<bool> isFavorite;
   final i0.Value<int> orientation;
-  final i0.Value<String?> cloudId;
+  final i0.Value<String?> iCloudId;
   const LocalAssetEntityCompanion({
     this.name = const i0.Value.absent(),
     this.type = const i0.Value.absent(),
@@ -914,7 +914,7 @@ class LocalAssetEntityCompanion
     this.checksum = const i0.Value.absent(),
     this.isFavorite = const i0.Value.absent(),
     this.orientation = const i0.Value.absent(),
-    this.cloudId = const i0.Value.absent(),
+    this.iCloudId = const i0.Value.absent(),
   });
   LocalAssetEntityCompanion.insert({
     required String name,
@@ -928,7 +928,7 @@ class LocalAssetEntityCompanion
     this.checksum = const i0.Value.absent(),
     this.isFavorite = const i0.Value.absent(),
     this.orientation = const i0.Value.absent(),
-    this.cloudId = const i0.Value.absent(),
+    this.iCloudId = const i0.Value.absent(),
   }) : name = i0.Value(name),
        type = i0.Value(type),
        id = i0.Value(id);
@@ -944,7 +944,7 @@ class LocalAssetEntityCompanion
     i0.Expression<String>? checksum,
     i0.Expression<bool>? isFavorite,
     i0.Expression<int>? orientation,
-    i0.Expression<String>? cloudId,
+    i0.Expression<String>? iCloudId,
   }) {
     return i0.RawValuesInsertable({
       if (name != null) 'name': name,
@@ -958,7 +958,7 @@ class LocalAssetEntityCompanion
       if (checksum != null) 'checksum': checksum,
       if (isFavorite != null) 'is_favorite': isFavorite,
       if (orientation != null) 'orientation': orientation,
-      if (cloudId != null) 'cloud_id': cloudId,
+      if (iCloudId != null) 'i_cloud_id': iCloudId,
     });
   }
 
@@ -974,7 +974,7 @@ class LocalAssetEntityCompanion
     i0.Value<String?>? checksum,
     i0.Value<bool>? isFavorite,
     i0.Value<int>? orientation,
-    i0.Value<String?>? cloudId,
+    i0.Value<String?>? iCloudId,
   }) {
     return i1.LocalAssetEntityCompanion(
       name: name ?? this.name,
@@ -988,7 +988,7 @@ class LocalAssetEntityCompanion
       checksum: checksum ?? this.checksum,
       isFavorite: isFavorite ?? this.isFavorite,
       orientation: orientation ?? this.orientation,
-      cloudId: cloudId ?? this.cloudId,
+      iCloudId: iCloudId ?? this.iCloudId,
     );
   }
 
@@ -1030,8 +1030,8 @@ class LocalAssetEntityCompanion
     if (orientation.present) {
       map['orientation'] = i0.Variable<int>(orientation.value);
     }
-    if (cloudId.present) {
-      map['cloud_id'] = i0.Variable<String>(cloudId.value);
+    if (iCloudId.present) {
+      map['i_cloud_id'] = i0.Variable<String>(iCloudId.value);
     }
     return map;
   }
@@ -1050,7 +1050,7 @@ class LocalAssetEntityCompanion
           ..write('checksum: $checksum, ')
           ..write('isFavorite: $isFavorite, ')
           ..write('orientation: $orientation, ')
-          ..write('cloudId: $cloudId')
+          ..write('iCloudId: $iCloudId')
           ..write(')'))
         .toString();
   }

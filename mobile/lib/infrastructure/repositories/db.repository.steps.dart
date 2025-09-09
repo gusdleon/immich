@@ -4691,13 +4691,13 @@ class Shape22 extends i0.VersionedTable {
       columnsByName['is_favorite']! as i1.GeneratedColumn<bool>;
   i1.GeneratedColumn<int> get orientation =>
       columnsByName['orientation']! as i1.GeneratedColumn<int>;
-  i1.GeneratedColumn<String> get cloudId =>
-      columnsByName['cloud_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get iCloudId =>
+      columnsByName['i_cloud_id']! as i1.GeneratedColumn<String>;
 }
 
 i1.GeneratedColumn<String> _column_95(String aliasedName) =>
     i1.GeneratedColumn<String>(
-      'cloud_id',
+      'i_cloud_id',
       aliasedName,
       true,
       type: i1.DriftSqlType.string,

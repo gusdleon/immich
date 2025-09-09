@@ -77,7 +77,7 @@ class DriftLocalAssetRepository extends DriftDatabaseRepository {
         _db.localAssetEntity.selectOnly().join([
             leftOuterJoin(
               _db.remoteAssetCloudIdEntity,
-              _db.localAssetEntity.cloudId.equalsExp(_db.remoteAssetCloudIdEntity.cloudId),
+              _db.localAssetEntity.iCloudId.equalsExp(_db.remoteAssetCloudIdEntity.cloudId),
               useColumns: false,
             ),
             leftOuterJoin(

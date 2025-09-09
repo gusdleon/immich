@@ -17,7 +17,7 @@ class LocalAssetEntity extends Table with DriftDefaultsMixin, AssetEntityMixin {
 
   IntColumn get orientation => integer().withDefault(const Constant(0))();
 
-  TextColumn get cloudId => text().nullable()();
+  TextColumn get iCloudId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -37,6 +37,6 @@ extension LocalAssetEntityDataDomainExtension on LocalAssetEntityData {
     width: width,
     remoteId: null,
     orientation: orientation,
-    cloudId: cloudId,
+    cloudId: iCloudId,
   );
 }

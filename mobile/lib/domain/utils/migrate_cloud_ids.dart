@@ -45,7 +45,7 @@ Future<void> syncCloudIds(ProviderContainer ref) async {
 Future<void> _populateCloudIds(Drift drift) async {
   final query = drift.localAssetEntity.selectOnly()
     ..addColumns([drift.localAssetEntity.id])
-    ..where(drift.localAssetEntity.cloudId.isNull());
+    ..where(drift.localAssetEntity.iCloudId.isNull());
   final ids = await query.map((row) => row.read(drift.localAssetEntity.id)!).get();
   final cloudMapping = await NativeSyncApi().getCloudIdForAssetIds(ids);
   await DriftLocalAlbumRepository(drift).updateCloudMapping(cloudMapping);
@@ -63,20 +63,20 @@ Future<List<_CloudIdMapping>> _fetchCloudIdMappings(Drift drift, String userId) 
           ),
           leftOuterJoin(
             drift.remoteAssetCloudIdEntity,
-            drift.localAssetEntity.cloudId.equalsExp(drift.remoteAssetCloudIdEntity.cloudId),
+            drift.localAssetEntity.iCloudId.equalsExp(drift.remoteAssetCloudIdEntity.cloudId),
             useColumns: false,
           ),
         ])
-        ..addColumns([drift.remoteAssetEntity.id, drift.localAssetEntity.cloudId])
+        ..addColumns([drift.remoteAssetEntity.id, drift.localAssetEntity.iCloudId])
         ..where(
           drift.localAssetEntity.id.isNotNull() &
-              drift.localAssetEntity.cloudId.isNotNull() &
+              drift.localAssetEntity.iCloudId.isNotNull() &
               drift.remoteAssetEntity.ownerId.equals(userId) &
               drift.remoteAssetCloudIdEntity.cloudId.isNull(),
         );
   return query
       .map(
-        (row) => (assetId: row.read(drift.remoteAssetEntity.id)!, cloudId: row.read(drift.localAssetEntity.cloudId)!),
+        (row) => (assetId: row.read(drift.remoteAssetEntity.id)!, cloudId: row.read(drift.localAssetEntity.iCloudId)!),
       )
       .get();
 }

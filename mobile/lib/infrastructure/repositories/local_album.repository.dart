@@ -243,7 +243,7 @@ class DriftLocalAlbumRepository extends DriftDatabaseRepository {
 
         batch.update(
           _db.localAssetEntity,
-          LocalAssetEntityCompanion(cloudId: Value(cloudId)),
+          LocalAssetEntityCompanion(iCloudId: Value(cloudId)),
           where: (f) => f.id.equals(assetId),
         );
       }
