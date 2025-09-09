@@ -301,16 +301,17 @@ class BetaSyncSettings extends HookConsumerWidget {
                   ref.read(backgroundSyncProvider).hashAssets();
                 },
               ),
-              ListTile(
-                title: Text(
-                  "sync_cloud_ids".t(context: context),
-                  style: const TextStyle(fontWeight: FontWeight.w500),
+              if (Platform.isIOS)
+                ListTile(
+                  title: Text(
+                    "sync_cloud_ids".t(context: context),
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  leading: const Icon(Icons.keyboard_command_key_rounded),
+                  subtitle: Text("tap_to_run_job".t(context: context)),
+                  trailing: _SyncStatusIcon(status: ref.watch(syncStatusProvider).cloudIdSyncStatus),
+                  onTap: ref.read(backgroundSyncProvider).syncCloudIds,
                 ),
-                leading: const Icon(Icons.keyboard_command_key_rounded),
-                subtitle: Text("tap_to_run_job".t(context: context)),
-                trailing: _SyncStatusIcon(status: ref.watch(syncStatusProvider).cloudIdSyncStatus),
-                onTap: ref.read(backgroundSyncProvider).syncCloudIds,
-              ),
               const Divider(height: 1, indent: 16, endIndent: 16),
               const SizedBox(height: 24),
               _SectionHeaderText(text: "actions".t(context: context)),

@@ -265,7 +265,7 @@ class SyncStreamRepository extends DriftDatabaseRepository {
             final map = metadata.value as Map<String, Object?>;
             final companion = RemoteAssetCloudIdEntityCompanion(cloudId: Value(map['iCloudId']?.toString()));
             batch.insert(
-              _db.remoteAssetEntity,
+              _db.remoteAssetCloudIdEntity,
               companion.copyWith(assetId: Value(metadata.assetId)),
               onConflict: DoUpdate((_) => companion),
             );
