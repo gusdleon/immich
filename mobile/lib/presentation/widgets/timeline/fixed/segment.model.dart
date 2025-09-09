@@ -122,6 +122,7 @@ class _FixedSegmentRow extends ConsumerWidget {
   }
 
   Widget _buildAssetRow(BuildContext context, List<BaseAsset> assets, TimelineService timelineService) {
+    final size = Size.square(tileHeight);
     return FixedTimelineRow(
       dimension: tileHeight,
       spacing: spacing,
@@ -135,6 +136,7 @@ class _FixedSegmentRow extends ConsumerWidget {
               key: ValueKey(Object.hash(assets[i].heroTag, assetIndex + i, timelineService.hashCode)),
               asset: assets[i],
               assetIndex: assetIndex + i,
+              size: size,
             ),
           ),
       ],
@@ -145,8 +147,9 @@ class _FixedSegmentRow extends ConsumerWidget {
 class _AssetTileWidget extends ConsumerWidget {
   final BaseAsset asset;
   final int assetIndex;
+  final Size size;
 
-  const _AssetTileWidget({super.key, required this.asset, required this.assetIndex});
+  const _AssetTileWidget({super.key, required this.asset, required this.assetIndex, required this.size});
 
   Future _handleOnTap(BuildContext ctx, WidgetRef ref, int assetIndex, BaseAsset asset, int? heroOffset) async {
     final multiSelectState = ref.read(multiSelectProvider);
@@ -204,6 +207,7 @@ class _AssetTileWidget extends ConsumerWidget {
           lockSelection: lockSelection,
           showStorageIndicator: showStorageIndicator,
           heroOffset: heroOffset,
+          size: size,
         ),
       ),
     );
