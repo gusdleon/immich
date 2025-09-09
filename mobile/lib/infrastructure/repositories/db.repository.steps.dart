@@ -4442,7 +4442,7 @@ final class Schema11 extends i0.VersionedSchema {
   );
   final i1.Index idxLocalAssetCloudId = i1.Index(
     'idx_local_asset_cloud_id',
-    'CREATE INDEX IF NOT EXISTS idx_local_asset_cloud_id ON local_asset_entity (cloud_id)',
+    'CREATE INDEX IF NOT EXISTS idx_local_asset_cloud_id ON local_asset_entity (i_cloud_id)',
   );
   final i1.Index idxRemoteAssetOwnerChecksum = i1.Index(
     'idx_remote_asset_owner_checksum',

@@ -7311,7 +7311,7 @@ class DatabaseAtV11 extends GeneratedDatabase {
   );
   late final Index idxLocalAssetCloudId = Index(
     'idx_local_asset_cloud_id',
-    'CREATE INDEX IF NOT EXISTS idx_local_asset_cloud_id ON local_asset_entity (cloud_id)',
+    'CREATE INDEX IF NOT EXISTS idx_local_asset_cloud_id ON local_asset_entity (i_cloud_id)',
   );
   late final Index idxRemoteAssetOwnerChecksum = Index(
     'idx_remote_asset_owner_checksum',
