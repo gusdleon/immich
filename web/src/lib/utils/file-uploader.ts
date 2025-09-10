@@ -3,6 +3,7 @@ import { uploadManager } from '$lib/managers/upload-manager.svelte';
 import { UploadState } from '$lib/models/upload-asset';
 import { uploadAssetsStore } from '$lib/stores/upload';
 import { uploadRequest } from '$lib/utils';
+import { ChunkedUploader } from '$lib/utils/chunked-uploader';
 import { addAssetsToAlbum } from '$lib/utils/asset-utils';
 import { ExecutorQueue } from '$lib/utils/executor-queue';
 import { asQueryString } from '$lib/utils/shared-links';
@@ -135,24 +136,13 @@ async function fileUploader({
   uploadAssetsStore.markStarted(deviceAssetId);
 
   try {
-    const formData = new FormData();
-    for (const [key, value] of Object.entries({
-      deviceAssetId,
-      deviceId: 'WEB',
-      fileCreatedAt,
-      fileModifiedAt: new Date(assetFile.lastModified).toISOString(),
-      isFavorite: 'false',
-      duration: '0:00:00.000000',
-      assetData: new File([assetFile], assetFile.name),
-    })) {
-      formData.append(key, value);
-    }
-
-    if (isLockedAssets) {
-      formData.append('visibility', AssetVisibility.Locked);
-    }
+    // Check if we should use chunked upload for large files (>10MB)
+    const CHUNK_UPLOAD_THRESHOLD = 10 * 1024 * 1024; // 10MB
+    const useChunkedUpload = assetFile.size > CHUNK_UPLOAD_THRESHOLD && ChunkedUploader.isChunkedUploadSupported();
 
     let responseData: { id: string; status: AssetMediaStatus; isTrashed?: boolean } | undefined;
+    
+    // Pre-upload duplicate check with checksum
     if (crypto?.subtle?.digest && !authManager.isSharedLink) {
       uploadAssetsStore.updateItem(deviceAssetId, { message: $t('asset_hashing') });
       await tick();
@@ -179,29 +169,76 @@ async function fileUploader({
     }
 
     if (!responseData) {
-      const queryParams = asQueryString(authManager.params);
-
-      uploadAssetsStore.updateItem(deviceAssetId, { message: $t('asset_uploading') });
-      if (replaceAssetId) {
-        const response = await uploadRequest<AssetMediaResponseDto>({
-          url: getBaseUrl() + getAssetOriginalPath(replaceAssetId) + (queryParams ? `?${queryParams}` : ''),
-          method: 'PUT',
-          data: formData,
-          onUploadProgress: (event) => uploadAssetsStore.updateProgress(deviceAssetId, event.loaded, event.total),
+      if (useChunkedUpload && !replaceAssetId) {
+        // Use chunked upload for large files
+        uploadAssetsStore.updateItem(deviceAssetId, { message: $t('asset_uploading') });
+        
+        const result = await ChunkedUploader.uploadFile({
+          file: assetFile,
+          deviceAssetId,
+          deviceId: 'WEB',
+          fileCreatedAt: new Date(assetFile.lastModified),
+          fileModifiedAt: new Date(assetFile.lastModified),
+          duration: '0:00:00.000000',
+          visibility: isLockedAssets ? AssetVisibility.Locked : undefined,
+          chunkSize: ChunkedUploader.getOptimalChunkSize(assetFile.size),
+          onProgress: (loaded, total) => uploadAssetsStore.updateProgress(deviceAssetId, loaded, total),
+          onChunkComplete: (chunkIndex, totalChunks) => {
+            const progress = Math.round(((chunkIndex + 1) / totalChunks) * 100);
+            uploadAssetsStore.updateItem(deviceAssetId, { 
+              message: `${$t('asset_uploading')} (${progress}%)` 
+            });
+          },
         });
-        responseData = response.data;
+
+        responseData = {
+          id: result.id,
+          status: result.status as AssetMediaStatus,
+          isTrashed: result.isTrashed,
+        };
       } else {
-        const response = await uploadRequest<AssetMediaResponseDto>({
-          url: getBaseUrl() + '/assets' + (queryParams ? `?${queryParams}` : ''),
-          data: formData,
-          onUploadProgress: (event) => uploadAssetsStore.updateProgress(deviceAssetId, event.loaded, event.total),
-        });
-
-        if (![200, 201].includes(response.status)) {
-          throw new Error($t('errors.unable_to_upload_file'));
+        // Use single file upload for smaller files or replace operations
+        const formData = new FormData();
+        for (const [key, value] of Object.entries({
+          deviceAssetId,
+          deviceId: 'WEB',
+          fileCreatedAt,
+          fileModifiedAt: new Date(assetFile.lastModified).toISOString(),
+          isFavorite: 'false',
+          duration: '0:00:00.000000',
+          assetData: new File([assetFile], assetFile.name),
+        })) {
+          formData.append(key, value);
         }
 
-        responseData = response.data;
+        if (isLockedAssets) {
+          formData.append('visibility', AssetVisibility.Locked);
+        }
+
+        const queryParams = asQueryString(authManager.params);
+
+        uploadAssetsStore.updateItem(deviceAssetId, { message: $t('asset_uploading') });
+        if (replaceAssetId) {
+          const response = await uploadRequest<AssetMediaResponseDto>({
+            url: getBaseUrl() + getAssetOriginalPath(replaceAssetId) + (queryParams ? `?${queryParams}` : ''),
+            method: 'PUT',
+            data: formData,
+            onUploadProgress: (event) => uploadAssetsStore.updateProgress(deviceAssetId, event.loaded, event.total),
+          });
+          responseData = response.data;
+        } else {
+          const response = await uploadRequest<AssetMediaResponseDto>({
+            url: getBaseUrl() + '/assets' + (queryParams ? `?${queryParams}` : ''),
+            data: formData,
+            onUploadProgress: (event) => uploadAssetsStore.updateProgress(deviceAssetId, event.loaded, event.total),
+          });
+
+          if (![200, 201].includes(response.status)) {
+            throw new Error($t('errors.unable_to_upload_file'));
+          }
+
+          responseData = response.data;
+        }
       }
     }
 

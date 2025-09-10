@@ -2,6 +2,7 @@ import { ActivityService } from 'src/services/activity.service';
 import { AlbumService } from 'src/services/album.service';
 import { ApiKeyService } from 'src/services/api-key.service';
 import { ApiService } from 'src/services/api.service';
+import { AssetChunkUploadService } from 'src/services/asset-chunk-upload.service';
 import { AssetMediaService } from 'src/services/asset-media.service';
 import { AssetService } from 'src/services/asset.service';
 import { AuditService } from 'src/services/audit.service';
@@ -46,6 +47,7 @@ export const services = [
   ActivityService,
   AlbumService,
   ApiService,
+  AssetChunkUploadService,
   AssetMediaService,
   AssetService,
   AuditService,
