@@ -6,6 +6,8 @@ import { pipeline } from 'node:stream/promises';
 import { createHash } from 'node:crypto';
 import { AssetMediaService } from 'src/services/asset-media.service';
 import { LoggingRepository } from 'src/repositories/logging.repository';
+import { StorageCore } from 'src/cores/storage.core';
+import { StorageFolder } from 'src/enum';
 import { AuthDto } from 'src/dtos/auth.dto';
 import {
   ChunkUploadCompleteDto,
@@ -43,20 +45,23 @@ export class AssetChunkUploadService {
   private readonly sessions = new Map<string, ChunkUploadSession>();
   private readonly CHUNK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
   private readonly SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
-  private readonly TEMP_DIR = '/tmp/immich-chunks';
 
   constructor(
     private readonly assetMediaService: AssetMediaService,
     private readonly logger: LoggingRepository,
   ) {
     this.logger.setContext(AssetChunkUploadService.name);
-    this.ensureTempDir();
     this.startCleanupTask();
   }
 
-  private ensureTempDir() {
-    if (!existsSync(this.TEMP_DIR)) {
-      mkdirSync(this.TEMP_DIR, { recursive: true });
+  private getChunksDir(userId: string): string {
+    const userUploadDir = StorageCore.getFolderLocation(StorageFolder.Upload, userId);
+    return join(userUploadDir, 'chunks');
+  }
+
+  private ensureTempDir(tempDir: string) {
+    if (!existsSync(tempDir)) {
+      mkdirSync(tempDir, { recursive: true });
     }
   }
 
@@ -105,11 +110,10 @@ export class AssetChunkUploadService {
     }
 
     const sessionId = randomUUID();
-    const tempDir = join(this.TEMP_DIR, sessionId);
+    const chunksBaseDir = this.getChunksDir(auth.user.id);
+    const tempDir = join(chunksBaseDir, sessionId);
 
-    if (!existsSync(tempDir)) {
-      mkdirSync(tempDir, { recursive: true });
-    }
+    this.ensureTempDir(tempDir);
 
     const session: ChunkUploadSession = {
       id: sessionId,

@@ -28,7 +28,7 @@ The server exposes new REST endpoints for chunked uploads:
 
 - Upload sessions are stored in memory with automatic cleanup
 - Sessions expire after 30 minutes of inactivity
-- Temporary chunk files are stored in `/tmp/immich-chunks/{sessionId}/`
+- Temporary chunk files are stored in `<UPLOAD_LOCATION>/upload/<userId>/chunks/{sessionId}/`
 - File assembly uses streaming to minimize memory usage
 
 ### Web Client
@@ -164,7 +164,7 @@ AppSettingsEnum.chunkedUploadThreshold
 
 Configuration through environment or startup:
 
-- **Temp directory**: `/tmp/immich-chunks` (configurable)
+- **Chunk directory**: `<UPLOAD_LOCATION>/upload/<userId>/chunks/` (follows media location)
 - **Session timeout**: 30 minutes (configurable)
 - **Cleanup interval**: 1 minute (configurable)
 
