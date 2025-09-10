@@ -20,6 +20,7 @@ interface ChunkUploadOptions {
   visibility?: string;
   livePhotoVideoId?: string;
   checksum?: string;
+  isFavorite?: boolean;
   chunkSize?: number;
   onProgress?: (loaded: number, total: number, chunkIndex: number) => void;
   onChunkComplete?: (chunkIndex: number, totalChunks: number) => void;
@@ -59,6 +60,7 @@ export class ChunkedUploader {
       visibility: options.visibility,
       livePhotoVideoId: options.livePhotoVideoId,
       checksum: options.checksum,
+      isFavorite: options.isFavorite,
     });
 
     // If asset already exists (duplicate), return early
@@ -96,7 +98,7 @@ export class ChunkedUploader {
     formData.append('deviceId', options.deviceId);
     formData.append('fileCreatedAt', options.fileCreatedAt.toISOString());
     formData.append('fileModifiedAt', options.fileModifiedAt.toISOString());
-    formData.append('isFavorite', 'false');
+    formData.append('isFavorite', options.isFavorite ? 'true' : 'false');
     formData.append('duration', options.duration || '0:00:00.000000');
     formData.append('assetData', options.file);
 
@@ -130,6 +132,7 @@ export class ChunkedUploader {
     visibility?: string;
     livePhotoVideoId?: string;
     checksum?: string;
+    isFavorite?: boolean;
   }): Promise<ChunkUploadSession> {
     const body = {
       ...data,
@@ -220,11 +223,15 @@ export class ChunkedUploader {
     return true;
   }
 
-  static getOptimalChunkSize(fileSize: number): number {
-    // Calculate optimal chunk size based on file size
-    if (fileSize < 10 * 1024 * 1024) return 1 * 1024 * 1024; // 1MB for files < 10MB
-    if (fileSize < 100 * 1024 * 1024) return 5 * 1024 * 1024; // 5MB for files < 100MB
-    if (fileSize < 1024 * 1024 * 1024) return 10 * 1024 * 1024; // 10MB for files < 1GB
-    return 20 * 1024 * 1024; // 20MB for larger files
+  static getOptimalChunkSize(fileSize: number, preferredChunkSize: number = 100 * 1024 * 1024): number {
+    // Use the preferred chunk size as the maximum
+    // For very large files, we might still want smaller chunks for better upload parallelism
+    if (fileSize < preferredChunkSize) {
+      // For files smaller than preferred chunk size, use a smaller chunk for better progress
+      return Math.min(5 * 1024 * 1024, preferredChunkSize); // 5MB max for small files
+    }
+    
+    // For large files, use the configured chunk size but cap it reasonably
+    return Math.min(preferredChunkSize, 200 * 1024 * 1024); // Never exceed 200MB
   }
 }

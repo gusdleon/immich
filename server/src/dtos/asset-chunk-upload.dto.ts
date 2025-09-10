@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
-import { Optional, ValidateDate, ValidateEnum, ValidateUUID } from 'src/validation';
+import { Optional, ValidateBoolean, ValidateDate, ValidateEnum, ValidateUUID } from 'src/validation';
 import { AssetVisibility } from 'src/enum';
 
 export class ChunkUploadInitDto {
@@ -47,6 +47,10 @@ export class ChunkUploadInitDto {
   @Optional()
   @IsString()
   checksum?: string;
+
+  @Optional()
+  @ValidateBoolean()
+  isFavorite?: boolean;
 }
 
 export class ChunkUploadDto {

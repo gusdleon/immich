@@ -33,6 +33,7 @@ interface ChunkUploadSession {
   visibility?: string;
   livePhotoVideoId?: string;
   expectedChecksum?: string;
+  isFavorite?: boolean;
   receivedChunks: Set<number>;
   tempDir: string;
   status: 'pending' | 'uploading' | 'completed' | 'error';
@@ -129,6 +130,7 @@ export class AssetChunkUploadService {
       visibility: dto.visibility,
       livePhotoVideoId: dto.livePhotoVideoId,
       expectedChecksum: dto.checksum,
+      isFavorite: dto.isFavorite,
       receivedChunks: new Set(),
       tempDir,
       status: 'pending',
@@ -268,6 +270,7 @@ export class AssetChunkUploadService {
         filename: session.filename,
         visibility: session.visibility as any,
         livePhotoVideoId: session.livePhotoVideoId,
+        isFavorite: session.isFavorite,
         metadata: [],
         [UploadFieldName.ASSET_DATA]: null as any,
       };

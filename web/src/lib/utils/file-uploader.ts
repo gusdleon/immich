@@ -1,6 +1,7 @@
 import { authManager } from '$lib/managers/auth-manager.svelte';
 import { uploadManager } from '$lib/managers/upload-manager.svelte';
 import { UploadState } from '$lib/models/upload-asset';
+import { chunkUploadSize } from '$lib/stores/preferences.store';
 import { uploadAssetsStore } from '$lib/stores/upload';
 import { uploadRequest } from '$lib/utils';
 import { ChunkedUploader } from '$lib/utils/chunked-uploader';
@@ -136,8 +137,8 @@ async function fileUploader({
   uploadAssetsStore.markStarted(deviceAssetId);
 
   try {
-    // Check if we should use chunked upload for large files (>10MB)
-    const CHUNK_UPLOAD_THRESHOLD = 10 * 1024 * 1024; // 10MB
+    // Get the configured chunk size threshold from user preferences
+    const CHUNK_UPLOAD_THRESHOLD = get(chunkUploadSize);
     const useChunkedUpload = assetFile.size > CHUNK_UPLOAD_THRESHOLD && ChunkedUploader.isChunkedUploadSupported();
 
     let responseData: { id: string; status: AssetMediaStatus; isTrashed?: boolean } | undefined;
@@ -181,7 +182,8 @@ async function fileUploader({
           fileModifiedAt: new Date(assetFile.lastModified),
           duration: '0:00:00.000000',
           visibility: isLockedAssets ? AssetVisibility.Locked : undefined,
-          chunkSize: ChunkedUploader.getOptimalChunkSize(assetFile.size),
+          isFavorite: false, // Keep consistent with single upload default
+          chunkSize: ChunkedUploader.getOptimalChunkSize(assetFile.size, get(chunkUploadSize)),
           onProgress: (loaded, total) => uploadAssetsStore.updateProgress(deviceAssetId, loaded, total),
           onChunkComplete: (chunkIndex, totalChunks) => {
             const progress = Math.round(((chunkIndex + 1) / totalChunks) * 100);
