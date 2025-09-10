@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -12,6 +14,7 @@ import {
   Query,
   Req,
   Res,
+  UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -33,6 +36,12 @@ import {
   CheckExistingAssetsDto,
   UploadFieldName,
 } from 'src/dtos/asset-media.dto';
+import {
+  ChunkUploadCompleteDto,
+  ChunkUploadInitDto,
+  ChunkUploadInitResponseDto,
+  ChunkUploadResponseDto,
+} from 'src/dtos/asset-chunk-upload.dto';
 import { AuthDto } from 'src/dtos/auth.dto';
 import { ImmichHeader, Permission, RouteKey } from 'src/enum';
 import { AssetUploadInterceptor } from 'src/middleware/asset-upload.interceptor';
@@ -40,6 +49,7 @@ import { Auth, Authenticated, FileResponse } from 'src/middleware/auth.guard';
 import { FileUploadInterceptor, getFiles } from 'src/middleware/file-upload.interceptor';
 import { LoggingRepository } from 'src/repositories/logging.repository';
 import { AssetMediaService } from 'src/services/asset-media.service';
+import { AssetChunkUploadService } from 'src/services/asset-chunk-upload.service';
 import { UploadFiles } from 'src/types';
 import { ImmichFileResponse, sendFile } from 'src/utils/file';
 import { FileNotEmptyValidator, UUIDParamDto } from 'src/validation';
@@ -50,6 +60,7 @@ export class AssetMediaController {
   constructor(
     private logger: LoggingRepository,
     private service: AssetMediaService,
+    private chunkUploadService: AssetChunkUploadService,
   ) {}
 
   @Post()
@@ -199,5 +210,104 @@ export class AssetMediaController {
     @Body() dto: AssetBulkUploadCheckDto,
   ): Promise<AssetBulkUploadCheckResponseDto> {
     return this.service.bulkUploadCheck(auth, dto);
+  }
+
+  /**
+   * Initialize chunked upload session
+   */
+  @Post('upload/init')
+  @Authenticated({ permission: Permission.AssetUpload })
+  @ApiOperation({
+    summary: 'initializeChunkUpload',
+    description: 'Initialize a chunked upload session for large files',
+  })
+  @HttpCode(HttpStatus.OK)
+  initializeChunkUpload(
+    @Auth() auth: AuthDto,
+    @Body() dto: ChunkUploadInitDto,
+  ): Promise<ChunkUploadInitResponseDto> {
+    return this.chunkUploadService.initializeChunkUpload(auth, dto);
+  }
+
+  /**
+   * Upload a chunk for an ongoing upload session
+   */
+  @Put('upload/:uploadId/chunk/:chunkIndex')
+  @UseInterceptors(FileUploadInterceptor)
+  @ApiConsumes('multipart/form-data')
+  @Authenticated({ permission: Permission.AssetUpload })
+  @ApiOperation({
+    summary: 'uploadChunk',
+    description: 'Upload a chunk for an ongoing upload session',
+  })
+  async uploadChunk(
+    @Auth() auth: AuthDto,
+    @Param('uploadId') uploadId: string,
+    @Param('chunkIndex') chunkIndex: string,
+    @UploadedFile(new ParseFilePipe({ validators: [new FileNotEmptyValidator(['chunk'])] })) 
+    chunkFile: Express.Multer.File,
+  ): Promise<ChunkUploadResponseDto> {
+    const chunkIndexNum = parseInt(chunkIndex, 10);
+    if (isNaN(chunkIndexNum) || chunkIndexNum < 0) {
+      throw new BadRequestException('Invalid chunk index');
+    }
+
+    // Convert Express.Multer.File to UploadFile
+    const uploadFile = {
+      uuid: '',
+      checksum: Buffer.alloc(0),
+      originalPath: chunkFile.path,
+      originalName: chunkFile.originalname,
+      size: chunkFile.size,
+    };
+
+    return this.chunkUploadService.uploadChunk(auth, uploadId, chunkIndexNum, uploadFile);
+  }
+
+  /**
+   * Complete chunked upload and create asset
+   */
+  @Post('upload/:uploadId/complete')
+  @Authenticated({ permission: Permission.AssetUpload })
+  @ApiOperation({
+    summary: 'completeChunkUpload',
+    description: 'Complete chunked upload and create the asset',
+  })
+  completeChunkUpload(
+    @Auth() auth: AuthDto,
+    @Param('uploadId') uploadId: string,
+    @Body() dto: ChunkUploadCompleteDto,
+  ): Promise<AssetMediaResponseDto> {
+    return this.chunkUploadService.completeChunkUpload(auth, uploadId, dto);
+  }
+
+  /**
+   * Get upload session status
+   */
+  @Get('upload/:uploadId/status')
+  @Authenticated({ permission: Permission.AssetUpload })
+  @ApiOperation({
+    summary: 'getUploadStatus',
+    description: 'Get the status of an ongoing upload session',
+  })
+  getUploadStatus(
+    @Auth() auth: AuthDto,
+    @Param('uploadId') uploadId: string,
+  ): ChunkUploadResponseDto {
+    return this.chunkUploadService.getUploadStatus(auth, uploadId);
+  }
+
+  /**
+   * Cancel upload session
+   */
+  @Delete('upload/:uploadId')
+  @Authenticated({ permission: Permission.AssetUpload })
+  @ApiOperation({
+    summary: 'cancelUpload',
+    description: 'Cancel an ongoing upload session',
+  })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  cancelUpload(@Auth() auth: AuthDto, @Param('uploadId') uploadId: string): void {
+    return this.chunkUploadService.cancelUpload(auth, uploadId);
   }
 }

@@ -146,4 +146,6 @@ export const playVideoThumbnailOnHover = persisted<boolean>('play-video-thumbnai
 
 export const loopVideo = persisted<boolean>('loop-video', true, {});
 
+export const chunkUploadSize = persisted<number>('chunk-upload-size', 100 * 1024 * 1024, {}); // Default 100MB
+
 export const recentAlbumsDropdown = persisted<boolean>('recent-albums-open', true, {});

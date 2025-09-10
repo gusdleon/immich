@@ -1,12 +1,14 @@
 <script lang="ts">
   import type { ComboBoxOption } from '$lib/components/shared-components/combobox.svelte';
   import SettingCombobox from '$lib/components/shared-components/settings/setting-combobox.svelte';
+  import SettingSelect from '$lib/components/shared-components/settings/setting-select.svelte';
   import SettingSwitch from '$lib/components/shared-components/settings/setting-switch.svelte';
   import SettingsLanguageSelector from '$lib/components/shared-components/settings/settings-language-selector.svelte';
   import { fallbackLocale, locales } from '$lib/constants';
   import { themeManager } from '$lib/managers/theme-manager.svelte';
   import {
     alwaysLoadOriginalFile,
+    chunkUploadSize,
     locale,
     loopVideo,
     playVideoThumbnailOnHover,
@@ -117,6 +119,23 @@
           title={$t('permanent_deletion_warning')}
           subtitle={$t('permanent_deletion_warning_setting_description')}
           bind:checked={$showDeleteModal}
+        />
+      </div>
+
+      <div class="ms-4">
+        <SettingSelect
+          label="Chunk Upload Size"
+          desc="Size of chunks for large file uploads. CloudFlare has a 100MB limit. Smaller chunks upload faster but use more requests."
+          name="chunk-upload-size"
+          number={true}
+          bind:value={$chunkUploadSize}
+          options={[
+            { value: 10 * 1024 * 1024, text: '10 MB' },
+            { value: 25 * 1024 * 1024, text: '25 MB' },
+            { value: 50 * 1024 * 1024, text: '50 MB' },
+            { value: 100 * 1024 * 1024, text: '100 MB (recommended)' },
+            { value: 200 * 1024 * 1024, text: '200 MB' },
+          ]}
         />
       </div>
     </div>

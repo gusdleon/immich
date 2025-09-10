@@ -2134,6 +2134,238 @@
         "description": "This endpoint requires the `asset.statistics` permission."
       }
     },
+    "/assets/upload/init": {
+      "post": {
+        "description": "Initialize a chunked upload session for large files. This endpoint requires the `asset.upload` permission.",
+        "operationId": "initializeChunkUpload",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChunkUploadInitDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChunkUploadInitResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "summary": "initializeChunkUpload",
+        "tags": [
+          "Assets"
+        ],
+        "x-immich-permission": "asset.upload"
+      }
+    },
+    "/assets/upload/{uploadId}": {
+      "delete": {
+        "description": "Cancel an ongoing upload session. This endpoint requires the `asset.upload` permission.",
+        "operationId": "cancelUpload",
+        "parameters": [
+          {
+            "name": "uploadId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "summary": "cancelUpload",
+        "tags": [
+          "Assets"
+        ],
+        "x-immich-permission": "asset.upload"
+      }
+    },
+    "/assets/upload/{uploadId}/chunk/{chunkIndex}": {
+      "put": {
+        "description": "Upload a chunk for an ongoing upload session. This endpoint requires the `asset.upload` permission.",
+        "operationId": "uploadChunk",
+        "parameters": [
+          {
+            "name": "chunkIndex",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "uploadId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChunkUploadResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "summary": "uploadChunk",
+        "tags": [
+          "Assets"
+        ],
+        "x-immich-permission": "asset.upload"
+      }
+    },
+    "/assets/upload/{uploadId}/complete": {
+      "post": {
+        "description": "Complete chunked upload and create the asset. This endpoint requires the `asset.upload` permission.",
+        "operationId": "completeChunkUpload",
+        "parameters": [
+          {
+            "name": "uploadId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChunkUploadCompleteDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetMediaResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "summary": "completeChunkUpload",
+        "tags": [
+          "Assets"
+        ],
+        "x-immich-permission": "asset.upload"
+      }
+    },
+    "/assets/upload/{uploadId}/status": {
+      "get": {
+        "description": "Get the status of an ongoing upload session. This endpoint requires the `asset.upload` permission.",
+        "operationId": "getUploadStatus",
+        "parameters": [
+          {
+            "name": "uploadId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChunkUploadResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "summary": "getUploadStatus",
+        "tags": [
+          "Assets"
+        ],
+        "x-immich-permission": "asset.upload"
+      }
+    },
     "/assets/{id}": {
       "get": {
         "operationId": "getAssetInfo",
@@ -11458,6 +11690,114 @@
         },
         "required": [
           "existingIds"
+        ],
+        "type": "object"
+      },
+      "ChunkUploadCompleteDto": {
+        "properties": {
+          "checksum": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ChunkUploadInitDto": {
+        "properties": {
+          "checksum": {
+            "type": "string"
+          },
+          "deviceAssetId": {
+            "type": "string"
+          },
+          "deviceId": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "string"
+          },
+          "fileCreatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "fileModifiedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "livePhotoVideoId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "totalChunks": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "totalSize": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "visibility": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AssetVisibility"
+              }
+            ]
+          }
+        },
+        "required": [
+          "deviceAssetId",
+          "deviceId",
+          "fileCreatedAt",
+          "fileModifiedAt",
+          "filename",
+          "totalChunks",
+          "totalSize"
+        ],
+        "type": "object"
+      },
+      "ChunkUploadInitResponseDto": {
+        "properties": {
+          "assetId": {
+            "type": "string"
+          },
+          "chunkSize": {
+            "type": "number"
+          },
+          "status": {
+            "type": "object"
+          },
+          "uploadId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "chunkSize",
+          "status",
+          "uploadId"
+        ],
+        "type": "object"
+      },
+      "ChunkUploadResponseDto": {
+        "properties": {
+          "chunkIndex": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "status": {
+            "type": "object"
+          },
+          "uploadId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "chunkIndex",
+          "status",
+          "uploadId"
         ],
         "type": "object"
       },

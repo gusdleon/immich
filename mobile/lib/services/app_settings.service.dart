@@ -50,6 +50,8 @@ enum AppSettingsEnum<T> {
   enableBackup<bool>(StoreKey.enableBackup, null, false),
   useCellularForUploadVideos<bool>(StoreKey.useWifiForUploadVideos, null, false),
   useCellularForUploadPhotos<bool>(StoreKey.useWifiForUploadPhotos, null, false),
+  enableChunkedUploads<bool>(StoreKey.enableChunkedUploads, "enableChunkedUploads", true),
+  chunkedUploadThreshold<int>(StoreKey.chunkedUploadThreshold, "chunkedUploadThreshold", 50), // 50MB
   readonlyModeEnabled<bool>(StoreKey.readonlyModeEnabled, "readonlyModeEnabled", false);
 
   const AppSettingsEnum(this.storeKey, this.hiveKey, this.defaultValue);
