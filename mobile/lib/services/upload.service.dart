@@ -19,6 +19,7 @@ import 'package:immich_mobile/providers/infrastructure/storage.provider.dart';
 import 'package:immich_mobile/repositories/upload.repository.dart';
 import 'package:immich_mobile/services/api.service.dart';
 import 'package:immich_mobile/services/app_settings.service.dart';
+import 'package:immich_mobile/services/chunk_upload.service.dart';
 import 'package:path/path.dart' as p;
 
 final uploadServiceProvider = Provider((ref) {
@@ -28,6 +29,7 @@ final uploadServiceProvider = Provider((ref) {
     ref.watch(storageRepositoryProvider),
     ref.watch(localAssetRepository),
     ref.watch(appSettingsServiceProvider),
+    ref.watch(chunkUploadServiceProvider),
   );
 
   ref.onDispose(service.dispose);
@@ -41,6 +43,7 @@ class UploadService {
     this._storageRepository,
     this._localAssetRepository,
     this._appSettingsService,
+    this._chunkUploadService,
   ) {
     _uploadRepository.onUploadStatus = _onUploadCallback;
     _uploadRepository.onTaskProgress = _onTaskProgressCallback;
@@ -51,6 +54,7 @@ class UploadService {
   final StorageRepository _storageRepository;
   final DriftLocalAssetRepository _localAssetRepository;
   final AppSettingsService _appSettingsService;
+  final ChunkUploadService _chunkUploadService;
 
   final StreamController<TaskStatusUpdate> _taskStatusController = StreamController<TaskStatusUpdate>.broadcast();
   final StreamController<TaskProgressUpdate> _taskProgressController = StreamController<TaskProgressUpdate>.broadcast();
@@ -101,19 +105,68 @@ class UploadService {
   Future<void> manualBackup(List<LocalAsset> localAssets) async {
     await _storageRepository.clearCache();
     List<UploadTask> tasks = [];
+    
+    final enableChunkedUploads = _appSettingsService.getSetting(AppSettingsEnum.enableChunkedUploads);
+    final chunkThreshold = _appSettingsService.getSetting(AppSettingsEnum.chunkedUploadThreshold) * 1024 * 1024; // Convert MB to bytes
+    
     for (final asset in localAssets) {
-      final task = await _getUploadTask(
-        asset,
-        group: kManualUploadGroup,
-        priority: 1, // High priority after upload motion photo part
-      );
-      if (task != null) {
-        tasks.add(task);
+      // Check if we should use chunked upload for large files
+      final file = await _storageRepository.getFileForAsset(asset.id);
+      if (file != null) {
+        final fileSize = await file.length();
+        
+        if (enableChunkedUploads && 
+            _chunkUploadService.shouldUseChunkedUpload(fileSize) && 
+            fileSize > chunkThreshold) {
+          // Use chunked upload for large files
+          await _uploadLargeAssetChunked(asset, file);
+        } else {
+          // Use standard background upload for smaller files
+          final task = await _getUploadTask(
+            asset,
+            group: kManualUploadGroup,
+            priority: 1,
+          );
+          if (task != null) {
+            tasks.add(task);
+          }
+        }
       }
     }
 
     if (tasks.isNotEmpty) {
       await enqueueTasks(tasks);
+    }
+  }
+
+  /// Upload a large asset using chunked upload
+  Future<void> _uploadLargeAssetChunked(LocalAsset asset, File file) async {
+    try {
+      final entity = await _storageRepository.getAssetEntityForAsset(asset);
+      if (entity == null) return;
+
+      final deviceId = Store.get(StoreKey.deviceId);
+      
+      final result = await _chunkUploadService.uploadFileChunked(
+        file: file,
+        deviceAssetId: asset.id,
+        deviceId: deviceId,
+        fileCreatedAt: asset.createdAt,
+        fileModifiedAt: asset.updatedAt,
+        duration: '0',
+        onProgress: (sent, total) {
+          // Could emit progress events here if needed
+          debugPrint('Upload progress: ${(sent / total * 100).toStringAsFixed(1)}%');
+        },
+        onChunkComplete: (chunkIndex, totalChunks) {
+          debugPrint('Completed chunk $chunkIndex/$totalChunks');
+        },
+      );
+      
+      debugPrint('Chunked upload completed: ${result.id}');
+    } catch (error, stackTrace) {
+      debugPrint('Chunked upload failed: $error');
+      debugPrint('Stack trace: $stackTrace');
     }
   }
 
@@ -389,14 +442,30 @@ class UploadTaskMetadata {
   final String localAssetId;
   final bool isLivePhotos;
   final String livePhotoVideoId;
+  final bool isChunkedUpload;
+  final String? chunkUploadId;
 
-  const UploadTaskMetadata({required this.localAssetId, required this.isLivePhotos, required this.livePhotoVideoId});
+  const UploadTaskMetadata({
+    required this.localAssetId, 
+    required this.isLivePhotos, 
+    required this.livePhotoVideoId,
+    this.isChunkedUpload = false,
+    this.chunkUploadId,
+  });
 
-  UploadTaskMetadata copyWith({String? localAssetId, bool? isLivePhotos, String? livePhotoVideoId}) {
+  UploadTaskMetadata copyWith({
+    String? localAssetId, 
+    bool? isLivePhotos, 
+    String? livePhotoVideoId,
+    bool? isChunkedUpload,
+    String? chunkUploadId,
+  }) {
     return UploadTaskMetadata(
       localAssetId: localAssetId ?? this.localAssetId,
       isLivePhotos: isLivePhotos ?? this.isLivePhotos,
       livePhotoVideoId: livePhotoVideoId ?? this.livePhotoVideoId,
+      isChunkedUpload: isChunkedUpload ?? this.isChunkedUpload,
+      chunkUploadId: chunkUploadId ?? this.chunkUploadId,
     );
   }
 
@@ -405,6 +474,8 @@ class UploadTaskMetadata {
       'localAssetId': localAssetId,
       'isLivePhotos': isLivePhotos,
       'livePhotoVideoId': livePhotoVideoId,
+      'isChunkedUpload': isChunkedUpload,
+      if (chunkUploadId != null) 'chunkUploadId': chunkUploadId,
     };
   }
 
@@ -413,6 +484,8 @@ class UploadTaskMetadata {
       localAssetId: map['localAssetId'] as String,
       isLivePhotos: map['isLivePhotos'] as bool,
       livePhotoVideoId: map['livePhotoVideoId'] as String,
+      isChunkedUpload: map['isChunkedUpload'] as bool? ?? false,
+      chunkUploadId: map['chunkUploadId'] as String?,
     );
   }
 
@@ -423,7 +496,7 @@ class UploadTaskMetadata {
 
   @override
   String toString() =>
-      'UploadTaskMetadata(localAssetId: $localAssetId, isLivePhotos: $isLivePhotos, livePhotoVideoId: $livePhotoVideoId)';
+      'UploadTaskMetadata(localAssetId: $localAssetId, isLivePhotos: $isLivePhotos, livePhotoVideoId: $livePhotoVideoId, isChunkedUpload: $isChunkedUpload, chunkUploadId: $chunkUploadId)';
 
   @override
   bool operator ==(covariant UploadTaskMetadata other) {
@@ -431,9 +504,15 @@ class UploadTaskMetadata {
 
     return other.localAssetId == localAssetId &&
         other.isLivePhotos == isLivePhotos &&
-        other.livePhotoVideoId == livePhotoVideoId;
+        other.livePhotoVideoId == livePhotoVideoId &&
+        other.isChunkedUpload == isChunkedUpload &&
+        other.chunkUploadId == chunkUploadId;
   }
 
   @override
-  int get hashCode => localAssetId.hashCode ^ isLivePhotos.hashCode ^ livePhotoVideoId.hashCode;
+  int get hashCode => localAssetId.hashCode ^ 
+    isLivePhotos.hashCode ^ 
+    livePhotoVideoId.hashCode ^ 
+    isChunkedUpload.hashCode ^
+    chunkUploadId.hashCode;
 }
