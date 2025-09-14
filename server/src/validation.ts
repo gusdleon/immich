@@ -288,6 +288,29 @@ export function isDateStringFormat(value: unknown, format: string) {
   if (typeof value !== 'string') {
     return false;
   }
+  
+  // For yyyy-MM-dd format, use a more robust validation that handles historical dates
+  if (format === 'yyyy-MM-dd') {
+    // First check basic format with regex
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(value)) {
+      return false;
+    }
+    
+    // Try JavaScript Date as fallback for very old dates where Luxon might fail
+    const jsDate = new Date(value + 'T00:00:00.000Z');
+    if (!isNaN(jsDate.getTime())) {
+      // Additional check: ensure the date components match what was input
+      const [year, month, day] = value.split('-').map(Number);
+      return jsDate.getUTCFullYear() === year && 
+             jsDate.getUTCMonth() === month - 1 && 
+             jsDate.getUTCDate() === day;
+    }
+    
+    return false;
+  }
+  
+  // For other formats, use Luxon as before
   return DateTime.fromFormat(value, format, { zone: 'utc' }).isValid;
 }
 
@@ -321,8 +344,19 @@ export function MaxDateString(
       constraints: [date],
       validator: {
         validate: (value, args) => {
-          const date = DateTime.fromISO(value, { zone: 'utc' });
-          return maxDate(date, args?.constraints[0]);
+          // Try Luxon first
+          let parsedDate = DateTime.fromISO(value, { zone: 'utc' });
+          
+          // If Luxon fails (e.g., for very old dates), fall back to JavaScript Date
+          if (!parsedDate.isValid && typeof value === 'string') {
+            const jsDate = new Date(value + 'T00:00:00.000Z');
+            if (!isNaN(jsDate.getTime())) {
+              // Convert JavaScript Date to Luxon DateTime for comparison
+              parsedDate = DateTime.fromJSDate(jsDate);
+            }
+          }
+          
+          return parsedDate.isValid && maxDate(parsedDate, args?.constraints[0]);
         },
         defaultMessage: buildMessage(
           (eachPrefix) => 'maximal allowed date for ' + eachPrefix + '$property is $constraint1',
