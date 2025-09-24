@@ -263,7 +263,7 @@ export class MetadataService extends BaseService {
       exifImageHeight: validate(height),
       exifImageWidth: validate(width),
       orientation: validate(exifTags.Orientation)?.toString() ?? null,
-      projectionType: exifTags.ProjectionType ? String(exifTags.ProjectionType).toUpperCase() : null,
+      projectionType: this.detect360Content(exifTags, asset),
       bitsPerSample: this.getBitsPerSample(exifTags),
       colorspace: exifTags.ColorSpace ?? null,
 
@@ -833,6 +833,60 @@ export class MetadataService extends BaseService {
     if (missingWithFaceAsset.length > 0) {
       await this.personRepository.updateAll(missingWithFaceAsset);
     }
+  }
+
+  private detect360Content(exifTags: ImmichTags, asset: { originalPath: string; type: AssetType }): string | null {
+    // Check standard GPano tags first
+    if (exifTags.ProjectionType) {
+      return String(exifTags.ProjectionType).toUpperCase();
+    }
+
+    // Check GPano namespace tags for comprehensive 360° detection
+    const gpanoTags = exifTags as any; // Type assertion for accessing dynamic GPano properties
+    
+    // GPano:UsePanoramaViewer indicates this is a 360° image
+    if (gpanoTags.UsePanoramaViewer === 1 || gpanoTags.UsePanoramaViewer === true) {
+      return 'EQUIRECTANGULAR';
+    }
+
+    // GPano:ProjectionType is the standard tag
+    if (gpanoTags.GPanoProjectionType) {
+      return String(gpanoTags.GPanoProjectionType).toUpperCase();
+    }
+
+    // Check for Insta360 specific tags and file extensions
+    const fileName = asset.originalPath.toLowerCase();
+    const isInsta360File = fileName.endsWith('.insp') || fileName.endsWith('.insv');
+    
+    if (isInsta360File) {
+      // For Insta360 files, check for specific metadata or assume equirectangular
+      if (exifTags.Make && exifTags.Make.toLowerCase().includes('insta360')) {
+        return 'EQUIRECTANGULAR';
+      }
+      
+      // Check for Insta360 specific tags in XMP namespace
+      if (gpanoTags.SourceImageCreateTime || gpanoTags.CroppedAreaImageWidthPixels) {
+        return 'EQUIRECTANGULAR';
+      }
+      
+      // Default assumption for .insp/.insv files
+      return 'EQUIRECTANGULAR';
+    }
+
+    // For videos, check additional metadata that might indicate 360° content
+    if (asset.type === AssetType.Video) {
+      // Check for spherical video metadata
+      if (gpanoTags.SphericalVideo === true || gpanoTags.Spherical === true) {
+        return 'EQUIRECTANGULAR';
+      }
+      
+      // Check for spatial audio or other 360° video indicators
+      if (gpanoTags.SpatialAudio === true) {
+        return 'EQUIRECTANGULAR';
+      }
+    }
+
+    return null;
   }
 
   private getDates(

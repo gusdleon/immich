@@ -1586,6 +1586,163 @@ describe(MetadataService.name, () => {
     });
   });
 
+  describe('360° content detection', () => {
+    beforeEach(() => {
+      mocks.assetJob.getForMetadataExtraction.mockResolvedValue(assetStub.image);
+      mocks.storage.stat.mockResolvedValue({ 
+        size: 123_456, 
+        mtime: new Date('2023-01-01T10:00:00.000Z'),
+        mtimeMs: new Date('2023-01-01T10:00:00.000Z').getTime(),
+        birthtimeMs: new Date('2023-01-01T10:00:00.000Z').getTime(),
+      } as Stats);
+    });
+
+    it('should detect 360° content from standard ProjectionType tag', async () => {
+      const tags: ImmichTags = {
+        ProjectionType: 'equirectangular',
+      };
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: assetStub.image.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: 'EQUIRECTANGULAR',
+        }),
+      );
+    });
+
+    it('should detect 360° content from GPano:UsePanoramaViewer tag', async () => {
+      const tags: ImmichTags = {
+        UsePanoramaViewer: 1,
+      } as any;
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: assetStub.image.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: 'EQUIRECTANGULAR',
+        }),
+      );
+    });
+
+    it('should detect 360° content from GPano:ProjectionType tag', async () => {
+      const tags: ImmichTags = {
+        GPanoProjectionType: 'cylindrical',
+      } as any;
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: assetStub.image.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: 'CYLINDRICAL',
+        }),
+      );
+    });
+
+    it('should detect 360° content from Insta360 .insp file extension', async () => {
+      const asset = { ...assetStub.image, originalPath: '/path/to/image.insp' };
+      mocks.assetJob.getForMetadataExtraction.mockResolvedValue(asset);
+      const tags: ImmichTags = {};
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: asset.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: 'EQUIRECTANGULAR',
+        }),
+      );
+    });
+
+    it('should detect 360° content from Insta360 .insv file extension', async () => {
+      const asset = { ...assetStub.video, originalPath: '/path/to/video.insv' };
+      mocks.assetJob.getForMetadataExtraction.mockResolvedValue(asset);
+      mocks.media.probe.mockResolvedValue(probeStub.videoStreamH264);
+      const tags: ImmichTags = {};
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: asset.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: 'EQUIRECTANGULAR',
+        }),
+      );
+    });
+
+    it('should detect 360° content from Insta360 make metadata', async () => {
+      const asset = { ...assetStub.image, originalPath: '/path/to/image.insp' };
+      mocks.assetJob.getForMetadataExtraction.mockResolvedValue(asset);
+      const tags: ImmichTags = {
+        Make: 'Insta360',
+      };
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: asset.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: 'EQUIRECTANGULAR',
+        }),
+      );
+    });
+
+    it('should detect 360° video content from spherical metadata', async () => {
+      const asset = { ...assetStub.video, originalPath: '/path/to/video.mp4' };
+      mocks.assetJob.getForMetadataExtraction.mockResolvedValue(asset);
+      mocks.media.probe.mockResolvedValue(probeStub.videoStreamH264);
+      const tags: ImmichTags = {
+        SphericalVideo: true,
+      } as any;
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: asset.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: 'EQUIRECTANGULAR',
+        }),
+      );
+    });
+
+    it('should detect 360° video content from spatial audio metadata', async () => {
+      const asset = { ...assetStub.video, originalPath: '/path/to/video.mp4' };
+      mocks.assetJob.getForMetadataExtraction.mockResolvedValue(asset);
+      mocks.media.probe.mockResolvedValue(probeStub.videoStreamH264);
+      const tags: ImmichTags = {
+        SpatialAudio: true,
+      } as any;
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: asset.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: 'EQUIRECTANGULAR',
+        }),
+      );
+    });
+
+    it('should return null for non-360° content', async () => {
+      const tags: ImmichTags = {
+        Make: 'Canon',
+        Model: 'EOS R5',
+      };
+      mockReadTags(tags);
+
+      await sut.handleMetadataExtraction({ id: assetStub.image.id });
+
+      expect(mocks.asset.upsertExif).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectionType: null,
+        }),
+      );
+    });
+  });
+
   describe('firstDateTime', () => {
     it('should ignore date-only tags like GPSDateStamp', () => {
       const tags = {
