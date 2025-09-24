@@ -460,6 +460,7 @@
             assetId={previewStackedAsset.id}
             cacheKey={previewStackedAsset.thumbhash}
             projectionType={previewStackedAsset.exifInfo?.projectionType}
+            asset={previewStackedAsset}
             loopVideo={true}
             onPreviousAsset={() => navigateAsset('previous')}
             onNextAsset={() => navigateAsset('next')}
@@ -477,6 +478,7 @@
               assetId={asset.livePhotoVideoId}
               cacheKey={asset.thumbhash}
               projectionType={asset.exifInfo?.projectionType}
+              asset={asset}
               loopVideo={$slideshowState !== SlideshowState.PlaySlideshow}
               onPreviousAsset={() => navigateAsset('previous')}
               onNextAsset={() => navigateAsset('next')}
@@ -505,6 +507,7 @@
             assetId={asset.id}
             cacheKey={asset.thumbhash}
             projectionType={asset.exifInfo?.projectionType}
+            asset={asset}
             loopVideo={$slideshowState !== SlideshowState.PlaySlideshow}
             onPreviousAsset={() => navigateAsset('previous')}
             onNextAsset={() => navigateAsset('next')}
