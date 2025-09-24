@@ -2940,4 +2940,160 @@ describe(MediaService.name, () => {
       expect(sut.isSRGB({ profileDescription: 'sRGB', bitsPerSample: 16 } as Exif)).toEqual(true);
     });
   });
+
+  describe('360° media processing', () => {
+    describe('handleGenerateThumbnails for 360° videos', () => {
+      it('should generate thumbnails for 360° .insv video without errors', async () => {
+        const asset360Video = {
+          ...assetStub.video,
+          originalPath: '/path/to/360-video.insv',
+          exifInfo: { projectionType: 'EQUIRECTANGULAR' },
+        };
+
+        mocks.assetJob.getForGenerateThumbnailJob.mockResolvedValue(asset360Video);
+        mocks.media.probe.mockResolvedValue(probeStub.videoStreamH264);
+        mocks.media.transcode.mockResolvedValue();
+        mocks.media.generateThumbhash.mockResolvedValue(Buffer.from('thumbhash'));
+        mocks.asset.upsertFiles.mockResolvedValue([]);
+        mocks.asset.update.mockResolvedValue(asset360Video);
+
+        await expect(sut.handleGenerateThumbnails({ id: asset360Video.id })).resolves.toBe(JobStatus.Success);
+
+        // Verify that transcoding is called for both preview and thumbnail
+        expect(mocks.media.transcode).toHaveBeenCalledTimes(2);
+        expect(mocks.media.transcode).toHaveBeenCalledWith(
+          asset360Video.originalPath,
+          expect.stringContaining('preview'),
+          expect.any(Array),
+        );
+        expect(mocks.media.transcode).toHaveBeenCalledWith(
+          asset360Video.originalPath,
+          expect.stringContaining('thumbnail'),
+          expect.any(Array),
+        );
+      });
+
+      it('should generate thumbnails for standard 360° video with ProjectionType metadata', async () => {
+        const asset360Video = {
+          ...assetStub.video,
+          originalPath: '/path/to/360-video.mp4',
+          exifInfo: { projectionType: 'EQUIRECTANGULAR' },
+        };
+
+        mocks.assetJob.getForGenerateThumbnailJob.mockResolvedValue(asset360Video);
+        mocks.media.probe.mockResolvedValue(probeStub.videoStreamH264);
+        mocks.media.transcode.mockResolvedValue();
+        mocks.media.generateThumbhash.mockResolvedValue(Buffer.from('thumbhash'));
+        mocks.asset.upsertFiles.mockResolvedValue([]);
+        mocks.asset.update.mockResolvedValue(asset360Video);
+
+        await expect(sut.handleGenerateThumbnails({ id: asset360Video.id })).resolves.toBe(JobStatus.Success);
+
+        expect(mocks.media.transcode).toHaveBeenCalledTimes(2);
+        expect(mocks.media.generateThumbhash).toHaveBeenCalledWith(
+          expect.stringContaining('preview'),
+          expect.any(Object),
+        );
+      });
+    });
+
+    describe('handleVideoConversion for 360° videos', () => {
+      it('should transcode 360° .insv video without breaking spherical metadata', async () => {
+        const asset360Video = {
+          ...assetStub.video,
+          originalPath: '/path/to/360-video.insv',
+          exifInfo: { projectionType: 'EQUIRECTANGULAR' },
+        };
+
+        mocks.assetJob.getForVideoConversion.mockResolvedValue(asset360Video);
+        mocks.media.probe.mockResolvedValue(probeStub.videoStreamH264);
+        mocks.media.transcode.mockResolvedValue();
+        mocks.asset.upsertFiles.mockResolvedValue([]);
+        mocks.asset.update.mockResolvedValue(asset360Video);
+
+        await expect(sut.handleVideoConversion({ id: asset360Video.id })).resolves.toBe(JobStatus.Success);
+
+        // Verify that transcoding preserves the video format
+        expect(mocks.media.transcode).toHaveBeenCalledWith(
+          asset360Video.originalPath,
+          expect.stringContaining('.mp4'),
+          expect.any(Array),
+        );
+      });
+
+      it('should handle 360° video transcoding with spherical video metadata', async () => {
+        const asset360Video = {
+          ...assetStub.video,
+          originalPath: '/path/to/spherical-video.mp4',
+          exifInfo: { projectionType: 'EQUIRECTANGULAR' },
+        };
+
+        mocks.assetJob.getForVideoConversion.mockResolvedValue(asset360Video);
+        mocks.media.probe.mockResolvedValue({
+          ...probeStub.videoStreamH264,
+          format: {
+            ...probeStub.videoStreamH264.format,
+            // Simulate spherical video metadata
+            tags: { 'spherical-video': 'true' },
+          },
+        });
+        mocks.media.transcode.mockResolvedValue();
+        mocks.asset.upsertFiles.mockResolvedValue([]);
+        mocks.asset.update.mockResolvedValue(asset360Video);
+
+        await expect(sut.handleVideoConversion({ id: asset360Video.id })).resolves.toBe(JobStatus.Success);
+
+        expect(mocks.media.transcode).toHaveBeenCalledTimes(1);
+      });
+
+      it('should skip transcoding if 360° video meets policy requirements', async () => {
+        const asset360Video = {
+          ...assetStub.video,
+          originalPath: '/path/to/high-quality-360.mp4',
+          exifInfo: { projectionType: 'EQUIRECTANGULAR' },
+        };
+
+        mocks.assetJob.getForVideoConversion.mockResolvedValue(asset360Video);
+        mocks.media.probe.mockResolvedValue({
+          ...probeStub.videoStreamH264,
+          videoStreams: [
+            {
+              ...probeStub.videoStreamH264.videoStreams[0],
+              codecName: 'h264', // Already in target format
+            },
+          ],
+        });
+
+        await expect(sut.handleVideoConversion({ id: asset360Video.id })).resolves.toBe(JobStatus.Skipped);
+
+        expect(mocks.media.transcode).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('handleGenerateThumbnails for 360° images', () => {
+      it('should generate thumbnails for 360° .insp image without errors', async () => {
+        const asset360Image = {
+          ...assetStub.image,
+          originalPath: '/path/to/360-image.insp',
+          exifInfo: { projectionType: 'EQUIRECTANGULAR' },
+        };
+
+        mocks.assetJob.getForGenerateThumbnailJob.mockResolvedValue(asset360Image);
+        mocks.media.resize.mockResolvedValue(Buffer.from('resized'));
+        mocks.media.generateThumbhash.mockResolvedValue(Buffer.from('thumbhash'));
+        mocks.storage.writeFile.mockResolvedValue();
+        mocks.asset.upsertFiles.mockResolvedValue([]);
+        mocks.asset.update.mockResolvedValue(asset360Image);
+
+        await expect(sut.handleGenerateThumbnails({ id: asset360Image.id })).resolves.toBe(JobStatus.Success);
+
+        // Verify that image processing is called for both preview and thumbnail
+        expect(mocks.media.resize).toHaveBeenCalledTimes(2);
+        expect(mocks.media.generateThumbhash).toHaveBeenCalledWith(
+          expect.stringContaining('preview'),
+          expect.any(Object),
+        );
+      });
+    });
+  });
 });
