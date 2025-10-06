@@ -27,6 +27,21 @@ describe('Validation', () => {
       const dto = plainToInstance(MyDto, { date: '2010-01-01' });
       await expect(validate(dto)).resolves.toHaveLength(1);
     });
+
+    it('passes when date is before 1922 (historical dates)', async () => {
+      const dto = plainToInstance(MyDto, { date: '1921-12-31' });
+      await expect(validate(dto)).resolves.toHaveLength(0);
+    });
+
+    it('passes when date is January 1, 1922', async () => {
+      const dto = plainToInstance(MyDto, { date: '1922-01-01' });
+      await expect(validate(dto)).resolves.toHaveLength(0);
+    });
+
+    it('passes when date is very old (1800s)', async () => {
+      const dto = plainToInstance(MyDto, { date: '1850-06-15' });
+      await expect(validate(dto)).resolves.toHaveLength(0);
+    });
   });
 
   describe('IsDateStringFormat', () => {
@@ -37,6 +52,21 @@ describe('Validation', () => {
 
     it('passes when date is valid', async () => {
       const dto = plainToInstance(MyDto, { date: '1999-12-31' });
+      await expect(validate(dto)).resolves.toHaveLength(0);
+    });
+
+    it('passes when date is before 1922 (historical dates)', async () => {
+      const dto = plainToInstance(MyDto, { date: '1921-12-31' });
+      await expect(validate(dto)).resolves.toHaveLength(0);
+    });
+
+    it('passes when date is January 1, 1922', async () => {
+      const dto = plainToInstance(MyDto, { date: '1922-01-01' });
+      await expect(validate(dto)).resolves.toHaveLength(0);
+    });
+
+    it('passes when date is very old (1800s)', async () => {
+      const dto = plainToInstance(MyDto, { date: '1850-06-15' });
       await expect(validate(dto)).resolves.toHaveLength(0);
     });
 
@@ -52,6 +82,11 @@ describe('Validation', () => {
 
     it('fails when undefined', async () => {
       const dto = plainToInstance(MyDto, {});
+      await expect(validate(dto)).resolves.toHaveLength(1);
+    });
+
+    it('fails when date components are invalid', async () => {
+      const dto = plainToInstance(MyDto, { date: '1922-13-01' });
       await expect(validate(dto)).resolves.toHaveLength(1);
     });
   });
